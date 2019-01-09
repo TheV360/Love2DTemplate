@@ -1,0 +1,26 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Love2D",
+			"type": "process",
+			// "command": "C:\\Users\\V360\\Documents\\Apps\\Love2D\\love.exe",
+			"command": "E:\\Love\\_Binaries_\\love.exe",
+			"isBackground": false,
+			/*"problemMatcher": {
+				"owner": "lua",
+				"fileLocation": ["relative", "${workspaceFolder}"],
+				"pattern": {
+					"regexp": "(Error){1}(: ){1}",
+					"severity": 0
+				}
+			},*/
+			"args": [
+				"${workspaceFolder}",
+				"--console"
+			]
+		}
+	]
+}
