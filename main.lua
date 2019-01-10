@@ -66,8 +66,9 @@ function love.load()
 		tick = 0.0,
 		tickMaximum = 1.0 / 60.0,
 		frames = 0,
+		trueFrames = 0,
 		
-		-- Debug Console, more general debug business
+		-- Debug console, more general debug business
 		debug = {
 			enabled = true,
 			
@@ -75,30 +76,16 @@ function love.load()
 			
 			fpsPlot = {},
 			
-			menu = {
-				enabled = false,
-				
-				boxWidth = 256,
-				boxHeight = 32,
-				boxPadding = 8,
-				
-				{text = "Open Console", callback = openConsole},
-				{text = "Take Screenshot", callback = takeScreenshot},
-				{text = "Exit Game", callback = love.event.quit}
-			},
-			
-			console = {
-				enabled = false,
-				
-				input = "",
-				cursor = 1,
-				
-				log = {"-- Console Log --"}
-			}
+			console = require("modules/debug/console"),
+			menu = require("modules/debug/menu"),
+			stats = require("modules/debug/stats")
 		}
 	}
 	
 	if window.debug.enabled then
+		window.debug.menu:addOption("Open Console", openConsole)
+		window.debug.menu:addOption("Take Screenshot", takeScreenshot)
+		window.debug.menu:addOption("Exit Game", love.event.quit)
 		
 		if window.debug.profile then
 			love.profiler = require("modules/profile")
@@ -171,7 +158,7 @@ function love.load()
 		a     = "z",
 		b     = "x",
 		start = "return",
-		debug = "lshift",
+		debug = "/",
 		quit  = "escape"
 	}
 	
@@ -225,26 +212,31 @@ function love.update(dt)
 		
 		-- Increment frames
 		window.frames = window.frames + 1
+	end
+	
+	if window.debug.enabled then
+		window.debug.stats.enabled = love.keyboard.isDown("rshift")
 		
-		-- Take screenshot (feel free to remove)
-		if button.release["start"] and window.debug.enabled then
-			window.running = false
-			window.screen.x = window.screen.x + (16 * window.screen.scale)
-		end
-	elseif window.debug.enabled then
-		for i, v in ipairs(window.debug.menu) do
-			v.hover = pointSquare(mouse.x, mouse.y, 8, (i * (window.debug.menu.boxHeight + window.debug.menu.boxPadding)) - window.debug.menu.boxHeight, window.debug.menu.boxWidth, window.debug.menu.boxHeight)
-			if mouse.press[1] and v.hover then
-				v.callback()
+		if button.release["debug"] then
+			if window.running then
+				window.screen.x = window.screen.x + (16 * window.screen.scale)
+				window.debug.menu.enabled = true
+			else
+				updateScreen(window.width, window.height)
+				window.debug.menu.enabled = false
 			end
+			
+			window.running = not window.running
 		end
+	end
 		
-		if button.release["start"] and window.debug.enabled then
-			window.running = true
-			updateScreen(window.width, window.height)
-		end
-	else
-		error("hey v36 disable debug before release")
+	-- Increment true frames
+	window.trueFrames = window.trueFrames + 1
+	
+	if window.debug.enabled then
+		window.debug.console:update()
+		window.debug.menu:update()
+		window.debug.stats:update()
 	end
 end
 
@@ -277,65 +269,17 @@ function love.draw()
 			love.graphics.draw(window.screen.canvas, window.screen.x, window.screen.y, 0, window.screen.scale)
 		end
 	else
+		draw()
+		
 		if window.shake.enabled and canMoveWindow() then
 			love.window.setPosition(window.x + window.shake.cx, window.y + window.shake.cy)
 		end
-		
-		draw()
 	end
 	
 	if window.debug.enabled then
-		local currIndex = (window.frames % 60) + 1
-		window.debug.fpsPlot[currIndex] = love.timer.getFPS()
-		
-		if not window.running then
-			love.graphics.setColor(1, 1, 1)
-			for i, c in ipairs(window.debug.menu) do
-				love.graphics.setColor(0.1, 0.2, 0.4, 0.25)
-				love.graphics.rectangle("fill", 12, 4 + (i * (window.debug.menu.boxHeight + window.debug.menu.boxPadding)) - window.debug.menu.boxHeight, window.debug.menu.boxWidth, window.debug.menu.boxHeight)
-				
-				if c.hover then
-					if mouse.down[1] then
-						love.graphics.setColor(0.1, 0.2, 0.4)
-					else
-						love.graphics.setColor(0.2, 0.4, 8)
-					end
-				else
-					love.graphics.setColor(0.3, 0.6, 1)
-				end
-				love.graphics.rectangle("fill", 8, (i * (window.debug.menu.boxHeight + window.debug.menu.boxPadding)) - window.debug.menu.boxHeight, window.debug.menu.boxWidth, window.debug.menu.boxHeight)
-				
-				love.graphics.setColor(1, 1, 1)
-				love.graphics.print(c.text, 12, 4 + (i * (window.debug.menu.boxHeight + window.debug.menu.boxPadding)) - window.debug.menu.boxHeight, 0, 2, 2)
-			end
-		end
-		
-		if button.down["debug"] then
-			local stats = love.graphics.getStats()
-			
-			local xofs = window.width - (60 * window.screen.scale)
-			love.graphics.setColor(0.125, 0.5, 0.25, 0.75)
-			love.graphics.rectangle("fill", xofs, 0, 60 * window.screen.scale, 61 * window.screen.scale)
-			for i = 0, #window.debug.fpsPlot do
-				love.graphics.setColor(0.25, 1, 0.5, ((i - currIndex) % 60) / 120 + .5)
-				love.graphics.line(xofs + (i * window.screen.scale), (61 - (window.debug.fpsPlot[i + 1] or i)) * window.screen.scale, xofs + ((i + 1) * window.screen.scale), (61 - (window.debug.fpsPlot[i + 2] or (i + 1))) * window.screen.scale)
-			end
-			
-			local txt = "-- Stats --\n"
-			txt = txt .. "FPS:  " .. window.debug.fpsPlot[(window.frames % 60) + 1] .. ",\n"
-			txt = txt .. "Draw: " .. stats.drawcalls .. ",\n"
-			txt = txt .. "WindowSize:\n" .. window.width .. ", " .. window.height .. ",\n"
-			txt = txt .. "ScreenSize:\n" .. window.screen.width .. ", " .. window.screen.height .. " (x" .. window.screen.scale .. "),\n"
-			love.graphics.setColor(0, 0, 0)
-			for j = -2, 2 do
-				for i = -2, 2 do
-					love.graphics.print(txt, 2 + i, 2 + j, 0, window.screen.scale)
-				end
-			end
-			love.graphics.setColor(0.25, 1, 0.5)
-			love.graphics.print(txt, 2, 2, 0, window.screen.scale)
-			love.graphics.setColor(1, 1, 1)
-		end
+		window.debug.console:draw()
+		window.debug.menu:draw()
+		window.debug.stats:draw()
 	end
 	
 	if window.profile and window.frames % 60 == 0 then

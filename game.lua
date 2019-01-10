@@ -1,8 +1,5 @@
 function setup()
-	table.insert(window.debug.menu, 1, {
-		text = "Hello, world!",
-		callback = function() love.graphics.setBackgroundColor(0.25, 0.5, 1) end
-	})
+	window.debug.menu:addOption("Hello, world!", function()love.graphics.setBackgroundColor(0.25, 0.5, 1)end, 1)
 end
 
 function draw()

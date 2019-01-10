@@ -1,3 +1,5 @@
+-- https://bitbucket.org/itraykov/profile.lua/
+
 local clock = os.clock
 local getinfo = debug.getinfo
 local sethook = debug.sethook
