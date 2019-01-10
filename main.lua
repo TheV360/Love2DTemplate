@@ -71,6 +71,10 @@ function love.load()
 		frames = 0,
 		trueFrames = 0,
 		
+		-- === Why have separate window.frames and window.trueFrames? ===
+		-- Your draw function should use window.frames so that it completely freezes when the debug menu is up.
+		-- If you never debug, you can just delete window.trueFrames and nothing will be different.
+		
 		-- Debug console, more general debug business
 		debug = {
 			enabled = true,
@@ -93,7 +97,7 @@ function love.load()
 		end
 		
 		if window.debug.profile then
-			love.profiler = require("modules/profile")
+			love.profiler = require("modules/debug/profile")
 			love.profiler.hookall("Lua")
 			love.profiler.start()
 		end
@@ -291,9 +295,9 @@ function love.draw()
 		window.debug.stats:draw()
 	end
 	
-	if window.profile and window.frames % 60 == 0 then
+	if window.debug.profile and window.trueFrames % 60 == 0 then
 		love.report = love.profiler.report("time", 20)
-		print(love.report)
+		_true_print(love.report)
 		love.profiler.reset()
 	end
 end
