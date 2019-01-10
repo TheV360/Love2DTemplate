@@ -14,6 +14,7 @@ local console = {
 		"+-----------------------------+"
 	},
 	history = {},
+	currTmp = "",
 	currHistory = 0,
 	max = 16,
 	
@@ -74,16 +75,22 @@ function console:keypressed(key)
 	
 	if key == "up" then
 		if self.currHistory == 0 then
-			self.history[0] = self.input
+			self.currTmp = self.input
 		end
 		if self.currHistory < #self.history then
 			self.currHistory = self.currHistory + 1
 			self.input = self.history[self.currHistory]
+			self.cursor = #self.input + 1
 		end
 	elseif key == "down" then
 		if self.currHistory > 0 then
 			self.currHistory = self.currHistory - 1
-			self.input = self.history[self.currHistory]
+			if self.currHistory == 0 then
+				self.input = self.currTmp
+			else
+				self.input = self.history[self.currHistory]
+			end
+			self.cursor = #self.input + 1
 		end
 	elseif key == "left" and self.cursor > 1 then
 		self.cursor = self.cursor - 1
@@ -108,7 +115,7 @@ function console:runInput()
 	
 	self.input = ""
 	self.cursor = 1
-	self.history[0] = nil
+	self.currTmp = nil
 	self.currHistory = 0
 	
 	if line == "`" then self.enabled = false; return; end
