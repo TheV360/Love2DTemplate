@@ -74,8 +74,6 @@ function love.load()
 			
 			profile = false,
 			
-			fpsPlot = {},
-			
 			console = require("modules/debug/console"),
 			menu = require("modules/debug/menu"),
 			stats = require("modules/debug/stats")
@@ -83,7 +81,9 @@ function love.load()
 	}
 	
 	if window.debug.enabled then
-		window.debug.menu:addOption("Open Console", openConsole)
+		window.debug.menu:addOption("Toggle Stats", function()window.debug.stats.enabled = not window.debug.stats.enabled;end)
+		window.debug.menu:addOption("Toggle Console", function()window.debug.console.enabled = not window.debug.console.enabled;end)
+		window.debug.menu:addDivider()
 		window.debug.menu:addOption("Take Screenshot", takeScreenshot)
 		window.debug.menu:addOption("Exit Game", love.event.quit)
 		
@@ -209,14 +209,9 @@ function love.update(dt)
 			
 			if canMoveWindow() then love.window.setPosition(window.x, window.y) end
 		end
-		
-		-- Increment frames
-		window.frames = window.frames + 1
 	end
 	
 	if window.debug.enabled then
-		window.debug.stats.enabled = love.keyboard.isDown("rshift")
-		
 		if button.release["debug"] then
 			if window.running then
 				window.screen.x = window.screen.x + (16 * window.screen.scale)
@@ -229,7 +224,12 @@ function love.update(dt)
 			window.running = not window.running
 		end
 	end
-		
+	
+	if window.running then
+		-- Increment frames
+		window.frames = window.frames + 1
+	end
+	
 	-- Increment true frames
 	window.trueFrames = window.trueFrames + 1
 	
@@ -367,10 +367,6 @@ function calculateShake()
 	oy = math.floor(oy)
 	
 	return ox, oy
-end
-
-function openConsole()
-	error("todo")
 end
 
 function takeScreenshot()

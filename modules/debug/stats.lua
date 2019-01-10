@@ -46,8 +46,8 @@ function stats:draw()
 	local tx, ty = window.width - (80 * window.screen.scale), 65 * window.screen.scale
 	
 	love.graphics.setColor(0, 0, 0)
-	for j = -2, 2 do
-		for i = -2, 2 do
+	for j = -2, 2, 2 do
+		for i = -2, 2, 2 do
 			love.graphics.print(txt, tx + 2 + i, ty + 2 + j, 0, window.screen.scale)
 		end
 	end

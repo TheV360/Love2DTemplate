@@ -1,9 +1,12 @@
 function setup()
-	window.debug.menu:addOption("Hello, world!", function()love.graphics.setBackgroundColor(0.25, 0.5, 1)end, 1)
+	clearColor = {0, 0, 0}
+	
+	window.debug.menu:addDivider(1)
+	window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 end
 
 function draw()
-	love.graphics.clear()
+	love.graphics.clear(clearColor)
 	
 	local i
 	for i = 1, 36, 4 do
