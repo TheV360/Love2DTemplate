@@ -84,11 +84,13 @@ function love.load()
 	}
 	
 	if window.debug.enabled then
-		window.debug.menu:addOption("Toggle Stats", function()window.debug.stats.enabled = not window.debug.stats.enabled;end)
-		window.debug.menu:addOption("Toggle Console", function()window.debug.console.enabled = not window.debug.console.enabled;end)
-		window.debug.menu:addDivider()
-		window.debug.menu:addOption("Take Screenshot", takeScreenshot)
-		window.debug.menu:addOption("Exit Game", love.event.quit)
+		if window.debug.menu then
+			window.debug.menu:addOption("Toggle Stats", function()window.debug.stats.enabled = not window.debug.stats.enabled;end)
+			window.debug.menu:addOption("Toggle Console", function()window.debug.console.enabled = not window.debug.console.enabled;end)
+			window.debug.menu:addDivider()
+			window.debug.menu:addOption("Take Screenshot", takeScreenshot)
+			window.debug.menu:addOption("Exit Game", love.event.quit)
+		end
 		
 		if window.debug.profile then
 			love.profiler = require("modules/profile")
