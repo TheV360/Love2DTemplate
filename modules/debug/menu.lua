@@ -38,10 +38,10 @@ end
 function menu:update()
 	if not self.enabled then return end
 	
-	local i, c
+	local _, c
 	local y = self.option.margin
 	
-	for i, c in ipairs(self.options) do
+	for _, c in ipairs(self.options) do
 		if c.callback then
 			c.hover = pointSquare(
 				mouse.x,
