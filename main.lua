@@ -49,7 +49,7 @@ function love.load()
 			width = 0,
 			height = 0
 		},
-			
+		
 		-- Screen shake
 		shake = {
 			enabled = false,
@@ -99,14 +99,12 @@ function love.load()
 		end
 	end
 	
-	window.fullscreen = false
-	
 	-- Get window position
 	window.x, window.y = love.window.getPosition()
 	
 	-- Actual scaling of the window
-	window.width = (window.screen.width * window.screen.scale)
-	window.height = (window.screen.height * window.screen.scale)
+	window.width = window.screen.width * window.screen.scale
+	window.height = window.screen.height * window.screen.scale
 	if window.backdrop.enabled then
 		window.width = window.width + 8
 		window.height = window.height + 8
@@ -170,40 +168,10 @@ function love.load()
 	-- And store the X and Y coordinates of the mouse in the other...
 	mouse.x, mouse.y = love.mouse.getPosition()
 	
-	window.loveFunctions:addLoveFunction("keypressed", "Template", function(key)
-		if key == "rctrl" and window.debug.enabled then
-			local i, j
-			local alert = "+----------------------------------------+\n|    Debugging. Window won't respond.    |\n| Type \"cont\" in the console to continue |\n+----------------------------------------+"
-			
-			window.fullscreen = false
-			love.window.setFullscreen(window.fullscreen)
-			
-			love.graphics.setColor(0, 0, 0)
-			for j = -2, 2, 2 do
-				for i = -2, 2, 2 do
-					love.graphics.print(alert, 4 + i, 4 + j, 0, 2)
-				end
-			end
-			
-			love.graphics.setColor(1, 0.25, 0.5)
-			love.graphics.print(alert, 4, 4, 0, 2)
-			
-			love.graphics.present()
-			
-			print("To resume the program, enter \"cont\"\n")
-			debug.debug()
-		elseif key == "f4" then
-			window.fullscreen = not window.fullscreen
-			love.window.setFullscreen(window.fullscreen)
-		end
-	end)
+	window.loveFunctions:addLoveFunction("keypressed", "TemplateKeys", templateKeypressed)
 	window.loveFunctions:addLoveFunction("resize", "TemplateResizer", function(width, height)
-		window.width = width
-		window.height = height
-		
-		if window.screen.enabled then
-			updateScreen(width, height)
-		end
+		window.width, window.height = width, height
+		if window.screen.enabled then updateScreen(width, height) end
 	end)
 	
 	if setup then
@@ -327,6 +295,35 @@ function love.draw()
 		love.report = love.profiler.report("time", 20)
 		print(love.report)
 		love.profiler.reset()
+	end
+end
+
+-- Added to love functions
+function templateKeypressed(key)
+	if key == "rctrl" and window.debug.enabled then
+		local i, j
+		local alert = "+----------------------------------------+\n|    Debugging. Window won't respond.    |\n| Type \"cont\" in the console to continue |\n+----------------------------------------+"
+		
+		window.fullscreen = false
+		love.window.setFullscreen(window.fullscreen)
+		
+		love.graphics.setColor(0, 0, 0)
+		for j = -2, 2, 2 do
+			for i = -2, 2, 2 do
+				love.graphics.print(alert, 4 + i, 4 + j, 0, 2)
+			end
+		end
+		
+		love.graphics.setColor(1, 0.25, 0.5)
+		love.graphics.print(alert, 4, 4, 0, 2)
+		
+		love.graphics.present()
+		
+		print("To resume the program, enter \"cont\"\n")
+		debug.debug()
+	elseif key == "f4" then
+		window.fullscreen = not window.fullscreen
+		love.window.setFullscreen(window.fullscreen)
 	end
 end
 
