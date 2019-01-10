@@ -88,6 +88,15 @@ function love.load()
 	}
 	
 	if window.debug.enabled then
+		if window.debug.console then
+			window.loveFunctions:addLoveFunction("textinput", "ConsoleInput", function(key)
+				window.debug.console:textinput(key)
+			end)
+			window.loveFunctions:addLoveFunction("keypressed", "ConsoleKeyPressed", function(key)
+				window.debug.console:keypressed(key)
+			end)
+		end
+		
 		if window.debug.menu then
 			window.debug.menu:addOption("Toggle Stats", function()window.debug.stats.enabled = not window.debug.stats.enabled;end)
 			window.debug.menu:addOption("Toggle Console", function()window.debug.console.enabled = not window.debug.console.enabled;end)
@@ -178,6 +187,9 @@ function love.load()
 		if window.screen.enabled then updateScreen(width, height) end
 	end)
 	
+	-- keyboard repeat
+	love.keyboard.setKeyRepeat(true)
+	
 	if setup then
 		setup()
 	end
@@ -225,7 +237,7 @@ function love.update(dt)
 	end
 	
 	if window.debug.enabled then
-		if button.release["debug"] then
+		if button.release["debug"] and not window.debug.console.enabled then
 			if window.running then
 				window.screen.x = window.screen.x + (16 * window.screen.scale)
 				window.debug.menu.enabled = true

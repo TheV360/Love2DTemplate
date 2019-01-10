@@ -6,8 +6,8 @@
 		{
 			"label": "Run Love2D",
 			"type": "process",
-			"command": "C:\\Users\\V360\\Documents\\Apps\\Love2D\\love.exe",
-			// "command": "E:\\Love\\_Binaries_\\love.exe",
+			// "command": "C:\\Users\\V360\\Documents\\Apps\\Love2D\\love.exe",
+			"command": "E:\\Love\\_Binaries_\\love.exe",
 			"isBackground": false,
 			/*"problemMatcher": {
 				"owner": "lua",

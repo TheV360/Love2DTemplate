@@ -5,7 +5,7 @@ function setup()
 	window.debug.menu:addDivider(2)
 	
 	window.loveFunctions:addLoveFunction("keypressed", "Game", function(key)
-		print(key)
+		-- print(key)
 	end)
 end
 
