@@ -226,7 +226,7 @@ function console:draw()
 	love.graphics.print(self.inputPrefix .. self.input, 0, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 	
 	love.graphics.setColor(0.25, 0.5, 1, 0.5 + cosine(self.cursorBlink, 90, 0.5))
-	love.graphics.print("|", ((self.cursor + 1) * self.charWidth - 2) * window.screen.scale, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
+	love.graphics.print("■", (self.cursor + 1) * self.charWidth * window.screen.scale, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 end
 
 return console

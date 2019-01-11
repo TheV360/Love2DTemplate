@@ -1,4 +1,4 @@
-require "object"
+Object = require("object")
 
 require "modules/watch"
 require "modules/v360"
@@ -135,7 +135,7 @@ function love.load()
 	love.graphics.setLineWidth(1)
 	
 	-- Set up pixel font
-	local supportedCharacters = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~◆◇▼▲▽△★☆"
+	local supportedCharacters = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~◆◇▼▲▽△★☆■□"
 	window.fonts.font6x8 = love.graphics.newImageFont("resources/font_6x8.png", supportedCharacters)
 	love.graphics.setFont(window.fonts.font6x8)
 	
