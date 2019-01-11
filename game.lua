@@ -1,12 +1,10 @@
 function setup()
 	clearColor = {0, 0, 0}
 	
+	gameText = "Make game!"
+	
 	window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 	window.debug.menu:addDivider(2)
-	
-	window.loveFunctions:addLoveFunction("keypressed", "Game", function(key)
-		-- print(key)
-	end)
 end
 
 function draw()
@@ -22,7 +20,7 @@ function draw()
 		
 		love.graphics.setColor(0, 0, 0, 0.25)
 		printCenter(
-			"Make game!",
+			gameText,
 			window.screen.width  / 2,
 			(window.screen.height / 2) - 15,
 			r,
@@ -38,7 +36,7 @@ function draw()
 			sine(window.frames + j, 270, 0.5, true) + 0.5
 		)
 		printCenter(
-			"Make game!",
+			gameText,
 			window.screen.width  / 2,
 			(window.screen.height / 2) - 16,
 			r,
