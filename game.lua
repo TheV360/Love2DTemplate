@@ -5,6 +5,10 @@ function setup()
 	
 	window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 	window.debug.menu:addDivider(2)
+	
+	window.loveFunctions:addLoveFunctionWithRunCheck("keypressed", "Game", function(key)
+		print("You have pressed the  " .. key .. " key .")
+	end)
 end
 
 function draw()

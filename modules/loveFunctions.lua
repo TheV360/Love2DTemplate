@@ -26,6 +26,10 @@ function loveFunctions:addLoveFunction(key, name, func)
 	self.functions[key][name] = func
 end
 
+function loveFunctions:addLoveFunctionWithRunCheck(key, name, func)
+	self:addLoveFunction(key, name, function(...)if window.running then func(...) end end)
+end
+
 function loveFunctions:removeLoveFunction(key, name)
 	if self.functions[key] then
 		self.functions[key][name] = nil

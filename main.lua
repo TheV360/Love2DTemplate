@@ -174,7 +174,7 @@ function love.load()
 		a     = "z",
 		b     = "x",
 		start = "return",
-		debug = "/",
+		debug = "=",
 		quit  = "escape"
 	}
 	
@@ -222,6 +222,7 @@ function love.update(dt)
 			window.x, window.y = love.window.getPosition()
 		end
 		
+		-- Run game's update function
 		if update then
 			update()
 		end
@@ -232,10 +233,12 @@ function love.update(dt)
 		elseif window.shake.enabled and (window.shake.x == 0 and window.shake.y == 0) then
 			window.shake.enabled = false
 			
+			-- If the window has been shaken out of place, put it back.
 			if canMoveWindow() then love.window.setPosition(window.x, window.y) end
 		end
 	end
 	
+	-- Debug stuff
 	if window.debug.enabled then
 		if button.release["debug"] and not window.debug.console.enabled then
 			if window.running then
@@ -246,6 +249,7 @@ function love.update(dt)
 				window.debug.menu.enabled = false
 			end
 			
+			-- Toggle running the game
 			window.running = not window.running
 		end
 	end
