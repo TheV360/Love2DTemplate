@@ -53,3 +53,28 @@ end
 function pointSquare(x1, y1, x2, y2, w2, h2)
 	return x1 >= x2 and y1 >= y2 and x1 < x2 + w2 and y1 < y2 + h2
 end
+
+function stringSplit(str, delimiter, max)
+	local result = {}
+	local next = string.find(str, delimiter)
+	local current = 0
+	
+	if not next then return {str} end
+	
+	repeat
+		table.insert(result, string.sub(str, current, next - 1))
+		current = next + 1
+		
+		if max and #result > max then
+			break
+		end
+		
+		next = string.find(str, delimiter, current)
+	until not next
+	
+	if not (max and #result > max) then
+		table.insert(result, string.sub(str, current))
+	end
+	
+	return result
+end

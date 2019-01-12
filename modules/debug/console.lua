@@ -43,17 +43,23 @@ print = function(...)
 	console:print(...)
 end
 
-function console:print(...)
-	local i
+-- Converts this: a[tab]b[tab][tab]d
+--       to this: a_______b_______________d
+-- Used when you print("multiple", "arguments", "like", "this")
+function console:spaceArguments(...)
 	local t = {...}
+	local i
+	local r = tostring(t[1])
 	
-	for i = 1, #t do
-		self:printLine(tostring(t[i]))
+	for i = 2, #t do
+		r = r .. string.rep(" ", 8 - #r % self.tabStep) .. t[i]
 	end
+	
+	return r
 end
 
-function console:printLine(l)
-	self.log[#self.log + 1] = l
+function console:print(...)
+	self.log[#self.log + 1] = self:spaceArguments(...)
 	
 	-- "Scroll"
 	if #self.log > self.logMax then
@@ -152,19 +158,19 @@ function console:runInput()
 	if line == "`" then self.enabled = false; return; end
 	if line == "~" then self.log = {}; return; end
 	if line == "help" then
-		self:printLine("~~~ Help ~~~~~~~~~~~")
-		self:printLine("`    - exit console ")
-		self:printLine("~    - clear console")
-		self:printLine("help - display this ")
-		self:printLine("~~~~~~~~~~~~~~~~~~~~")
-		self:printLine("Anything else will  ")
-		self:printLine("be treated as a Lua ")
-		self:printLine("statement.          ")
-		self:printLine("~~~~~~~~~~~~~~~~~~~~")
-		self:printLine("If you put = at the ")
-		self:printLine("beginning of a line,")
-		self:printLine("it shows the result.")
-		self:printLine("~~~~~~~~~~~~~~~~~~~~")
+		self:print("~~~ Help ~~~~~~~~~~~")
+		self:print("`    - exit console ")
+		self:print("~    - clear console")
+		self:print("help - display this ")
+		self:print("~~~~~~~~~~~~~~~~~~~~")
+		self:print("Anything else will  ")
+		self:print("be treated as a Lua ")
+		self:print("statement.          ")
+		self:print("~~~~~~~~~~~~~~~~~~~~")
+		self:print("If you put = at the ")
+		self:print("beginning of a line,")
+		self:print("it shows the result.")
+		self:print("~~~~~~~~~~~~~~~~~~~~")
 		
 		return
 	end
