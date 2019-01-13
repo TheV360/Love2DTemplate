@@ -281,7 +281,7 @@ function love.draw()
 		if window.running then
 			love.graphics.setColor(1, 1, 1)
 		else
-			love.graphics.setColor(0.2, 0.4, 0.6)
+			love.graphics.setColor(0.25, 0.25, 0.25)
 		end
 		
 		-- Add screen shake

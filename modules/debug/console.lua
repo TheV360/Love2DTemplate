@@ -16,7 +16,7 @@ local Console = {
 	},
 	logMax = 16,
 	
-	history = {},
+	history = {}, -- {"for i=1,#c.log do if type(c.log[i])=="string" then local p=i/(#c.log) c.log[i]={text=c.log[i],color={0.25*p,0.5*p,p}}end end"},
 	historyMax = 32,
 	historyNow = "",
 	currHistory = 0,
@@ -26,6 +26,7 @@ local Console = {
 	tabBefore = "",
 	tabBeforeCursor = 0,
 	tabMessage = false,
+	emptyTab = true,
 	
 	errorMessages = {
 		"Oof",
@@ -95,15 +96,15 @@ function Console:textinput(key)
 	
 	self:addAtCursor(key)
 	
-	self.cursorBlink = 0
-	self.tab = nil
+	self:clearState()
 end
 
 function Console:keypressed(key)
 	if not self.enabled then return end
 	
-	if key == "lctrl"  or key == "rctrl"
-	or key == "lshift" or key == "rshift"
+	if key == "lshift" or key == "rshift"
+	or key == "lctrl"  or key == "rctrl"
+	or key == "lalt"   or key == "ralt"
 	then return end
 	
 	self:hideTabMessage()
@@ -193,9 +194,8 @@ function Console:tabCompletion(dir)
 		
 		local isValid, items
 		
-		if #self.input > 0 then -- We're supposed to have something.
-			-- Yikes we found nothing
-			if not start then return end
+		-- We're supposed to have something.
+		if #self.input > 0 and start then
 			-- print("Found thing!")
 			
 			-- Yay, we found something that looks like an identifier!
@@ -207,20 +207,24 @@ function Console:tabCompletion(dir)
 			-- It wasn't
 			if not isValid then return end
 			-- print("It's an identifier!")
-		else -- We're supposed to have nothing.
+		elseif self.emptyTab then
+			-- It's alright to have nothing.
 			items = {""}
+			-- print("Found nothing!")
+		else
+			return
 		end
 		
 		-- It was!
 		local i
-		local tableTrace = _G -- _G contains itself oh god oh fuck
+		local tableTrace = _G -- _G contains itself oh gosh oh flip
 		
 		-- Trace down to the table we are in right now
 		for i = 1, #items - 1 do
 			tableTrace = tableTrace[items[i]]
 			if (not tableTrace) or type(tableTrace) ~= "table" then return end -- Oh, turns out that doesn't exist, okay! :/
 		end
-		-- print("It exists and everything!")
+		-- print("It exists(?) and everything!")
 		
 		self.tabBeforeComponent = items[#items]
 		
@@ -253,11 +257,11 @@ function Console:tabCompletion(dir)
 		-- Wraps properly.
 		self.currTab = dir >= 0 and 0 or 1
 	end
-		
+	
 	-- Now, more general tasks
 	self.currTab = ((self.currTab + dir - 1) % #self.tab) + 1
 	
-	local msg1 = string.format("%0" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
+	local msg1 = string.format("%" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
 	local msg2 = self.tabBeforeComponent .. self.tab[self.currTab]
 	if self.tabMessage then
 		self.log[#self.log] = self:spaceArguments(msg1, msg2)
@@ -284,12 +288,12 @@ function Console:runInput()
 	self.historyNow = nil
 	self.currHistory = 0
 	
-	if line == "`" then self.enabled = false; return; end
-	if line == "~" then self.log = {}; return; end
-	if line == "help" then
+	if line == "`" or line == "exit" or line == "quit" then self.enabled = false; return; end
+	if line == "~" or line == "cls" or line == "clear" then self.log = {}; return; end
+	if line == "?" or line == "help" then
 		self:print("~~~ Help ~~~~~~~~~~~")
 		self:print("`    - exit console ")
-		self:print("~    - clear console")
+		self:print("cls  - clear console")
 		self:print("help - display this ")
 		self:print("keyb - key shortcuts")
 		self:print("~~~~~~~~~~~~~~~~~~~~")
@@ -416,7 +420,15 @@ function Console:draw()
 	
 	love.graphics.setColor(1, 1, 1)
 	for i = 1, #self.log do
-		love.graphics.print(self.log[i], 0, window.height - (bottomDist - (self.lineHeight * window.screen.scale * (i - 1))), 0, window.screen.scale)
+		local msg
+		if type(self.log[i]) == "table" then
+			msg = self.log[i].text
+			love.graphics.setColor(self.log[i].color)
+		else
+			msg = self.log[i]
+			love.graphics.setColor(1, 1, 1)
+		end
+		love.graphics.print(msg, 0, window.height - (bottomDist - (self.lineHeight * window.screen.scale * (i - 1))), 0, window.screen.scale)
 	end
 	
 	love.graphics.setColor(0.5, 0.75, 1)
