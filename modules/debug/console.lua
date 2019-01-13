@@ -18,8 +18,12 @@ local Console = {
 	
 	history = {},
 	historyMax = 32,
-	currTmp = "",
+	historyNow = "",
 	currHistory = 0,
+	
+	tab = {},
+	currTab = 0,
+	currTabTmp = "",
 	
 	errorMessages = {
 		"Oof",
@@ -37,6 +41,7 @@ local Console = {
 	tabStep = 8,
 	
 	validVariable = "[%a][%a%d]*",
+	vagueIdentifier = "[%a][%a%d%.%:]*"
 }
 
 _true_print = print
@@ -71,6 +76,11 @@ function Console:print(...)
 	end
 end
 
+function Console:addAtCursor(str)
+	self.input = string.sub(self.input, 1, self.cursor - 1) .. str .. string.sub(self.input, self.cursor)
+	self.cursor = self.cursor + #str
+end
+
 function Console:textinput(key)
 	if not self.enabled then
 		if key == "`" then
@@ -79,8 +89,7 @@ function Console:textinput(key)
 		return
 	end
 	
-	self.input = string.sub(self.input, 1, self.cursor - 1) .. key .. string.sub(self.input, self.cursor)
-	self.cursor = self.cursor + 1
+	self:addAtCursor(key)
 	
 	self.cursorBlink = 0
 end
@@ -108,23 +117,23 @@ function Console:keypressed(key)
 	else
 		if key == "up" then
 			if self.currHistory == 0 then
-				self.currTmp = self.input
+				self.historyNow = self.input
 			end
 			if self.currHistory < #self.history then
 				self.currHistory = self.currHistory + 1
-				self.input = self.history[self.currHistory]
-				self.cursor = #self.input + 1
+				self:clearInput()
+				self:addAtCursor(self.history[self.currHistory])
 			end
 			self.cursorBlink = 0
 		elseif key == "down" then
 			if self.currHistory > 0 then
 				self.currHistory = self.currHistory - 1
+				self:clearInput()
 				if self.currHistory == 0 then
-					self.input = self.currTmp
+					self:addAtCursor(self.historyNow)
 				else
-					self.input = self.history[self.currHistory]
+					self:addAtCursor(self.history[self.currHistory])
 				end
-				self.cursor = #self.input + 1
 			end
 			self.cursorBlink = 0
 		elseif key == "left" and self.cursor > 1 then
@@ -144,6 +153,48 @@ function Console:keypressed(key)
 				self.cursor = self.cursor - 1
 				self.input = string.sub(self.input, 1, self.cursor - 1) .. string.sub(self.input, self.cursor + 1)
 			end
+		elseif key == "tab" then
+			if #self.input > 0 then
+			-- if not self.tabCalc then
+				-- -- Oof, we have to calculate the things
+				-- self.tab = {}
+				
+				-- So if you press tab here love.graphics.re|(), it only sees "love.graphics.re" [VALID] and not "love.graphics.re()" [INVALID]
+				local inputCur = string.sub(self.input, 1, self.cursor - 1)
+				local start, stop = inputCur:find(self.vagueIdentifier .. "$") -- grabs anything that looks like an identifier
+				-- also must be at the end, hence the $
+				
+				-- Yikes we found nothing
+				if not start then return end
+				
+				-- Yay, we found something that looks like an identifier!
+				inputCur = string.sub(inputCur, start, stop)
+				
+				-- ...but is it really?
+				local isValid, items = self:isValidIdentifier(inputCur)
+				
+				-- It wasn't
+				if not isValid then return end
+				
+				-- It was!
+				local i
+				local tableTrace = _G -- _G contains itself oh god oh fuck
+				
+				-- Trace down to the table we are in right now
+				for i = 1, #items - 1 do
+					tableTrace = tableTrace[items[i]]
+					if not tableTrace then return end
+				end
+				
+				-- Find something that looks like it!
+				for i in pairs(tableTrace) do
+					if string.sub(i, 1, #items[#items]) == items[#items] then
+						self:addAtCursor(string.sub(i, #items[#items] + 1) .. string.sub(self.input, self.cursor))
+						return
+					end
+				end
+			-- end
+			end
 		else
 			return
 		end
@@ -156,7 +207,7 @@ function Console:runInput()
 	local line = self.input
 	
 	self:clearInput()
-	self.currTmp = nil
+	self.historyNow = nil
 	self.currHistory = 0
 	
 	if line == "`" then self.enabled = false; return; end
@@ -208,6 +259,47 @@ function Console:runLine(code)
 	end
 end
 
+function Console:clearInput()
+	self.input = ""
+	self.cursor = 1
+end
+
+-- one
+function Console:isValidVariable(str)
+	return str:find(self.validVariable) and true or false
+end
+
+-- Multiple stuff
+function Console:isValidIdentifier(str)
+	local i
+	
+	-- variables (cursorBlink, arg2, etc)
+	local vars = {}
+	
+	-- delimiters (. and :)
+	local delCount = 0
+	
+	-- You can't be yourself twice
+	local alreadySelf = false
+	
+	for i in str:gfind("[%.%:]") do
+		-- Can't do this: a.b:c.d
+		-- I don't accept any delimiters once you use a :.
+		if alreadySelf then
+			return false
+		end
+		if i == ":" then
+			alreadySelf = true
+		end
+		delCount = delCount + 1
+	end
+	
+	for i in str:gfind(self.validVariable) do
+		table.insert(vars, i)
+	end
+	
+	return delCount + 1 == #vars, vars
+end
 
 function Console:update()
 	if not self.enabled then return end
