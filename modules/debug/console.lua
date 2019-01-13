@@ -1,4 +1,4 @@
-local console = {
+local Console = {
 	enabled = false,
 	
 	input = "",
@@ -32,7 +32,11 @@ local console = {
 	},
 	
 	charWidth = 6,
-	lineHeight = 8
+	lineHeight = 8,
+	
+	tabStep = 8,
+	
+	validVariable = "[%a][%a%d]*",
 }
 
 _true_print = print
@@ -40,13 +44,13 @@ _true_print = print
 -- Hook to print function
 print = function(...)
 	_true_print(...)
-	console:print(...)
+	Console:print(...)
 end
 
 -- Converts this: a[tab]b[tab][tab]d
 --       to this: a_______b_______________d
 -- Used when you print("multiple", "arguments", "like", "this")
-function console:spaceArguments(...)
+function Console:spaceArguments(...)
 	local t = {...}
 	local i
 	local r = tostring(t[1])
@@ -58,7 +62,7 @@ function console:spaceArguments(...)
 	return r
 end
 
-function console:print(...)
+function Console:print(...)
 	self.log[#self.log + 1] = self:spaceArguments(...)
 	
 	-- "Scroll"
@@ -67,7 +71,7 @@ function console:print(...)
 	end
 end
 
-function console:textinput(key)
+function Console:textinput(key)
 	if not self.enabled then
 		if key == "`" then
 			self.enabled = true
@@ -81,7 +85,7 @@ function console:textinput(key)
 	self.cursorBlink = 0
 end
 
-function console:keypressed(key)
+function Console:keypressed(key)
 	if not self.enabled then return end
 	
 	if love.keyboard.isDown("lctrl", "rctrl") then
@@ -148,7 +152,7 @@ function console:keypressed(key)
 	self.cursorBlink = 0
 end
 
-function console:runInput()
+function Console:runInput()
 	local line = self.input
 	
 	self:clearInput()
@@ -193,7 +197,7 @@ function console:runInput()
 	end
 end
 
-function console:runLine(code)
+function Console:runLine(code)
 	local HANDLE_WITH_CARE = loadstring(code)
 	local status, err = pcall(HANDLE_WITH_CARE)
 	if not status then
@@ -204,17 +208,13 @@ function console:runLine(code)
 	end
 end
 
-function console:update()
+
+function Console:update()
 	if not self.enabled then return end
 	self.cursorBlink = self.cursorBlink + 1
 end
 
-function console:clearInput()
-	self.input = ""
-	self.cursor = 1
-end
-
-function console:draw()
+function Console:draw()
 	if not self.enabled then return end
 	
 	local i
@@ -235,4 +235,4 @@ function console:draw()
 	love.graphics.print("■", (self.cursor + 1) * self.charWidth * window.screen.scale, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 end
 
-return console
+return Console

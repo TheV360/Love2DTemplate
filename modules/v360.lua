@@ -56,8 +56,8 @@ end
 
 function stringSplit(str, delimiter, max)
 	local result = {}
-	local next = string.find(str, delimiter)
 	local current = 0
+	local next = string.find(str, delimiter, current, true)
 	
 	if not next then return {str} end
 	
@@ -69,7 +69,7 @@ function stringSplit(str, delimiter, max)
 			break
 		end
 		
-		next = string.find(str, delimiter, current)
+		next = string.find(str, delimiter, current, true)
 	until not next
 	
 	if not (max and #result > max) then
