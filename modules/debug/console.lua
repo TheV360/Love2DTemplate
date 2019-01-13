@@ -23,7 +23,9 @@ local Console = {
 	
 	tab = {},
 	currTab = 0,
-	currTabTmp = "",
+	tabBefore = "",
+	tabBeforeCursor = 0,
+	tabMessage = false,
 	
 	errorMessages = {
 		"Oof",
@@ -61,7 +63,7 @@ function Console:spaceArguments(...)
 	local r = tostring(t[1])
 	
 	for i = 2, #t do
-		r = r .. string.rep(" ", 8 - #r % self.tabStep) .. t[i]
+		r = r .. string.rep(" ", 8 - #r % self.tabStep) .. tostring(t[i])
 	end
 	
 	return r
@@ -92,6 +94,7 @@ function Console:textinput(key)
 	self:addAtCursor(key)
 	
 	self.cursorBlink = 0
+	self.tab = nil
 end
 
 function Console:keypressed(key)
@@ -104,13 +107,16 @@ function Console:keypressed(key)
 		elseif key == "c" then
 			love.system.setClipboardText(self.input)
 		elseif key == "v" then
-			local c = love.system.getClipboardText()
-			
-			self.input = string.sub(self.input, 1, self.cursor - 1) .. c .. string.sub(self.input, self.cursor)
-			self.cursor = self.cursor + #c
-			self.cursorBlink = 0
+			self:addAtCursor(love.system.getClipboardText())
 		elseif key == "z" then
 			self:clearInput()
+		else
+			return
+		end
+	elseif love.keyboard.isDown("lshift", "rshift") then
+		if key == "tab" then
+			self:tabCompletion(-1)
+			return
 		else
 			return
 		end
@@ -124,7 +130,6 @@ function Console:keypressed(key)
 				self:clearInput()
 				self:addAtCursor(self.history[self.currHistory])
 			end
-			self.cursorBlink = 0
 		elseif key == "down" then
 			if self.currHistory > 0 then
 				self.currHistory = self.currHistory - 1
@@ -135,13 +140,10 @@ function Console:keypressed(key)
 					self:addAtCursor(self.history[self.currHistory])
 				end
 			end
-			self.cursorBlink = 0
 		elseif key == "left" and self.cursor > 1 then
 			self.cursor = self.cursor - 1
-			self.cursorBlink = 0
 		elseif key == "right" and self.cursor < #self.input + 1 then
 			self.cursor = self.cursor + 1
-			self.cursorBlink = 0
 		elseif key == "home" then
 			self.cursor = 1
 		elseif key == "end" then
@@ -154,52 +156,109 @@ function Console:keypressed(key)
 				self.input = string.sub(self.input, 1, self.cursor - 1) .. string.sub(self.input, self.cursor + 1)
 			end
 		elseif key == "tab" then
-			if #self.input > 0 then
-			-- if not self.tabCalc then
-				-- -- Oof, we have to calculate the things
-				-- self.tab = {}
-				
-				-- So if you press tab here love.graphics.re|(), it only sees "love.graphics.re" [VALID] and not "love.graphics.re()" [INVALID]
-				local inputCur = string.sub(self.input, 1, self.cursor - 1)
-				local start, stop = inputCur:find(self.vagueIdentifier .. "$") -- grabs anything that looks like an identifier
-				-- also must be at the end, hence the $
-				
-				-- Yikes we found nothing
-				if not start then return end
-				
-				-- Yay, we found something that looks like an identifier!
-				inputCur = string.sub(inputCur, start, stop)
-				
-				-- ...but is it really?
-				local isValid, items = self:isValidIdentifier(inputCur)
-				
-				-- It wasn't
-				if not isValid then return end
-				
-				-- It was!
-				local i
-				local tableTrace = _G -- _G contains itself oh god oh fuck
-				
-				-- Trace down to the table we are in right now
-				for i = 1, #items - 1 do
-					tableTrace = tableTrace[items[i]]
-					if not tableTrace then return end
-				end
-				
-				-- Find something that looks like it!
-				for i in pairs(tableTrace) do
-					if string.sub(i, 1, #items[#items]) == items[#items] then
-						self:addAtCursor(string.sub(i, #items[#items] + 1) .. string.sub(self.input, self.cursor))
-						return
-					end
-				end
-			-- end
-			end
-		else
+			self:tabCompletion(1)
 			return
 		end
 	end
 	
+	self:clearState()
+end
+
+function Console:tabCompletion(dir)
+	if #self.input > 0 then
+		if self.currTab < 1 then
+			-- Oof, we have to calculate the things
+			self.tab = {}
+			self.currTab = 0
+			self.tabMessage = false
+			
+			-- So if you press tab here love.graphics.re|(), it only sees "love.graphics.re" [VALID] and not "love.graphics.re()" [INVALID]
+			local inputCur = string.sub(self.input, 1, self.cursor - 1)
+			local start, stop = inputCur:find(self.vagueIdentifier .. "$") -- grabs anything that looks like an identifier
+			-- also must be at the end, hence the $
+			
+			-- Yikes we found nothing
+			if not start then return end
+			-- print("Found thing!")
+			
+			-- Yay, we found something that looks like an identifier!
+			inputCur = string.sub(inputCur, start, stop)
+			
+			-- ...but is it really?
+			local isValid, items = self:isValidIdentifier(inputCur, true)
+			
+			-- It wasn't
+			if not isValid then return end
+			-- print("It's an identifier!")
+			
+			-- It was!
+			local i
+			local tableTrace = _G -- _G contains itself oh god oh fuck
+			
+			-- Trace down to the table we are in right now
+			for i = 1, #items - 1 do
+				tableTrace = tableTrace[items[i]]
+				if not tableTrace then return end -- Oh, turns out that doesn't exist, okay! :/
+			end
+			-- print("It exists and everything!")
+			
+			-- Find something that looks like it!
+			if #items[#items] > 0 then
+				for i in pairs(tableTrace) do
+					start = string.sub(i, 1, #items[#items]) -- Repurposed variable
+					if start == items[#items] then
+						table.insert(self.tab, string.sub(i, #items[#items] + 1))
+					end
+				end
+			else
+				for i in pairs(tableTrace) do
+					table.insert(self.tab, i)
+				end
+			end
+			
+			-- If we didn't find anything, give up.
+			if #self.tab < 1 then return end
+			-- print("Even found some matches!")
+			
+			-- Alphabetize the stuff
+			table.sort(self.tab)
+			
+			-- I think we've succeeded. Save the text you've added in preparation to add text
+			-- also the cursor too. don't forget!
+			self.tabBefore = self.input
+			self.tabBeforeCursor = self.cursor
+			
+			-- Wraps properly.
+			self.currTab = dir >= 0 and 0 or 1
+		end
+		
+		-- Now, more general tasks
+		self.currTab = ((self.currTab + dir - 1) % #self.tab) + 1
+		
+		local msg = string.format("%0" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
+		if self.tabMessage then
+			self.log[#self.log] = self:spaceArguments(msg, self.tab[self.currTab])
+		else
+			self:print(msg, self.tab[self.currTab])
+			self.tabMessage = true
+		end
+		
+		-- Set the input to the base thing (DESCRIPTIVE COMMENTS)
+		self.input = self.tabBefore
+		self.cursor = self.tabBeforeCursor
+		
+		-- Add thing
+		self:addAtCursor(self.tab[self.currTab])
+		
+		-- Whoops
+		self.cursorBlink = 0
+	end
+end
+
+function Console:clearState()
+	self.tab = nil
+	self.currTab = 0
+	self.tabMessage = false
 	self.cursorBlink = 0
 end
 
@@ -270,7 +329,7 @@ function Console:isValidVariable(str)
 end
 
 -- Multiple stuff
-function Console:isValidIdentifier(str)
+function Console:isValidIdentifier(str, openEnded)
 	local i
 	
 	-- variables (cursorBlink, arg2, etc)
@@ -296,6 +355,10 @@ function Console:isValidIdentifier(str)
 	
 	for i in str:gfind(self.validVariable) do
 		table.insert(vars, i)
+	end
+	
+	if openEnded and delCount == #vars then
+		table.insert(vars, "")
 	end
 	
 	return delCount + 1 == #vars, vars
