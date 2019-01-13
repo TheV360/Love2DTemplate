@@ -40,7 +40,7 @@ local Console = {
 	charWidth = 6,
 	lineHeight = 8,
 	
-	tabStep = 8,
+	tabStep = 4,
 	
 	validVariable = "[%a][%a%d]*",
 	vagueIdentifier = "[%a][%a%d%.%:]*"
@@ -91,6 +91,8 @@ function Console:textinput(key)
 		return
 	end
 	
+	self:hideTabMessage()
+	
 	self:addAtCursor(key)
 	
 	self.cursorBlink = 0
@@ -99,6 +101,8 @@ end
 
 function Console:keypressed(key)
 	if not self.enabled then return end
+	
+	self:hideTabMessage()
 	
 	if love.keyboard.isDown("lctrl", "rctrl") then
 		if key == "x" then
@@ -164,6 +168,13 @@ function Console:keypressed(key)
 	self:clearState()
 end
 
+function Console:hideTabMessage()
+	if key ~= "tab" and self.tabMessage then
+		self.log[#self.log] = nil
+		self.tabMessage = false
+	end
+end
+
 function Console:tabCompletion(dir)
 	if #self.input > 0 then
 		if self.currTab < 1 then
@@ -202,6 +213,8 @@ function Console:tabCompletion(dir)
 			end
 			-- print("It exists and everything!")
 			
+			self.tabBeforeComponent = items[#items]
+			
 			-- Find something that looks like it!
 			if #items[#items] > 0 then
 				for i in pairs(tableTrace) do
@@ -235,11 +248,12 @@ function Console:tabCompletion(dir)
 		-- Now, more general tasks
 		self.currTab = ((self.currTab + dir - 1) % #self.tab) + 1
 		
-		local msg = string.format("%0" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
+		local msg1 = string.format("%0" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
+		local msg2 = self.tabBeforeComponent .. self.tab[self.currTab]
 		if self.tabMessage then
-			self.log[#self.log] = self:spaceArguments(msg, self.tab[self.currTab])
+			self.log[#self.log] = self:spaceArguments(msg1, msg2)
 		else
-			self:print(msg, self.tab[self.currTab])
+			self:print(msg1, msg2)
 			self.tabMessage = true
 		end
 		
@@ -253,13 +267,6 @@ function Console:tabCompletion(dir)
 		-- Whoops
 		self.cursorBlink = 0
 	end
-end
-
-function Console:clearState()
-	self.tab = nil
-	self.currTab = 0
-	self.tabMessage = false
-	self.cursorBlink = 0
 end
 
 function Console:runInput()
@@ -276,6 +283,7 @@ function Console:runInput()
 		self:print("`    - exit console ")
 		self:print("~    - clear console")
 		self:print("help - display this ")
+		self:print("keyb - key shortcuts")
 		self:print("~~~~~~~~~~~~~~~~~~~~")
 		self:print("Anything else will  ")
 		self:print("be treated as a Lua ")
@@ -284,6 +292,21 @@ function Console:runInput()
 		self:print("If you put = at the ")
 		self:print("beginning of a line,")
 		self:print("it shows the result.")
+		self:print("~~~~~~~~~~~~~~~~~~~~")
+		
+		return
+	end
+	if line == "keyb" then
+		self:print("~~~ Keyboard ~~~~~~~")
+		self:print("up/dn - history     ")
+		self:print("~~~~~~~~~~~~~~~~~~~~")
+		self:print("ctrlZ - clear line  ")
+		self:print("ctrlX - cut line    ")
+		self:print("ctrlC - copy line   ")
+		self:print("ctrlV - paste line  ")
+		self:print("~~~~~~~~~~~~~~~~~~~~")
+		self:print("tab   - autocomplete")
+		self:print(" (shift goes back!) ")
 		self:print("~~~~~~~~~~~~~~~~~~~~")
 		
 		return
@@ -321,6 +344,11 @@ end
 function Console:clearInput()
 	self.input = ""
 	self.cursor = 1
+end
+
+function Console:clearState()
+	self.currTab = 0
+	self.cursorBlink = 0
 end
 
 -- one
