@@ -42,8 +42,8 @@ local Console = {
 	
 	tabStep = 4,
 	
-	validVariable = "[%a][%a%d]*",
-	vagueIdentifier = "[%a][%a%d%.%:]*"
+	validVariable = "[%a_][%a%d_]*",
+	vagueIdentifier = "[%a_][%a%d_%.%:]*"
 }
 
 _true_print = print
@@ -101,6 +101,10 @@ end
 
 function Console:keypressed(key)
 	if not self.enabled then return end
+	
+	if key == "lctrl"  or key == "rctrl"
+	or key == "lshift" or key == "rshift"
+	then return end
 	
 	self:hideTabMessage()
 	
@@ -176,18 +180,20 @@ function Console:hideTabMessage()
 end
 
 function Console:tabCompletion(dir)
-	if #self.input > 0 then
-		if self.currTab < 1 then
-			-- Oof, we have to calculate the things
-			self.tab = {}
-			self.currTab = 0
-			self.tabMessage = false
-			
-			-- So if you press tab here love.graphics.re|(), it only sees "love.graphics.re" [VALID] and not "love.graphics.re()" [INVALID]
-			local inputCur = string.sub(self.input, 1, self.cursor - 1)
-			local start, stop = inputCur:find(self.vagueIdentifier .. "$") -- grabs anything that looks like an identifier
-			-- also must be at the end, hence the $
-			
+	if self.currTab < 1 then
+		-- Oof, we have to calculate the things
+		self.tab = {}
+		self.currTab = 0
+		self.tabMessage = false
+		
+		-- So if you press tab here love.graphics.re|(), it only sees "love.graphics.re" [VALID] and not "love.graphics.re()" [INVALID]
+		local inputCur = string.sub(self.input, 1, self.cursor - 1)
+		local start, stop = inputCur:find(self.vagueIdentifier .. "$") -- grabs anything that looks like an identifier
+		-- also must be at the end, hence the $
+		
+		local isValid, items
+		
+		if #self.input > 0 then -- We're supposed to have something.
 			-- Yikes we found nothing
 			if not start then return end
 			-- print("Found thing!")
@@ -196,77 +202,79 @@ function Console:tabCompletion(dir)
 			inputCur = string.sub(inputCur, start, stop)
 			
 			-- ...but is it really?
-			local isValid, items = self:isValidIdentifier(inputCur, true)
+			isValid, items = self:isValidIdentifier(inputCur, true)
 			
 			-- It wasn't
 			if not isValid then return end
 			-- print("It's an identifier!")
-			
-			-- It was!
-			local i
-			local tableTrace = _G -- _G contains itself oh god oh fuck
-			
-			-- Trace down to the table we are in right now
-			for i = 1, #items - 1 do
-				tableTrace = tableTrace[items[i]]
-				if not tableTrace then return end -- Oh, turns out that doesn't exist, okay! :/
-			end
-			-- print("It exists and everything!")
-			
-			self.tabBeforeComponent = items[#items]
-			
-			-- Find something that looks like it!
-			if #items[#items] > 0 then
-				for i in pairs(tableTrace) do
-					start = string.sub(i, 1, #items[#items]) -- Repurposed variable
-					if start == items[#items] then
-						table.insert(self.tab, string.sub(i, #items[#items] + 1))
-					end
-				end
-			else
-				for i in pairs(tableTrace) do
-					table.insert(self.tab, i)
-				end
-			end
-			
-			-- If we didn't find anything, give up.
-			if #self.tab < 1 then return end
-			-- print("Even found some matches!")
-			
-			-- Alphabetize the stuff
-			table.sort(self.tab)
-			
-			-- I think we've succeeded. Save the text you've added in preparation to add text
-			-- also the cursor too. don't forget!
-			self.tabBefore = self.input
-			self.tabBeforeCursor = self.cursor
-			
-			-- Wraps properly.
-			self.currTab = dir >= 0 and 0 or 1
+		else -- We're supposed to have nothing.
+			items = {""}
 		end
 		
-		-- Now, more general tasks
-		self.currTab = ((self.currTab + dir - 1) % #self.tab) + 1
+		-- It was!
+		local i
+		local tableTrace = _G -- _G contains itself oh god oh fuck
 		
-		local msg1 = string.format("%0" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
-		local msg2 = self.tabBeforeComponent .. self.tab[self.currTab]
-		if self.tabMessage then
-			self.log[#self.log] = self:spaceArguments(msg1, msg2)
+		-- Trace down to the table we are in right now
+		for i = 1, #items - 1 do
+			tableTrace = tableTrace[items[i]]
+			if (not tableTrace) or type(tableTrace) ~= "table" then return end -- Oh, turns out that doesn't exist, okay! :/
+		end
+		-- print("It exists and everything!")
+		
+		self.tabBeforeComponent = items[#items]
+		
+		-- Find something that looks like it!
+		if #items[#items] > 0 then
+			for i in pairs(tableTrace) do
+				start = string.sub(i, 1, #items[#items]) -- Repurposed variable
+				if start == items[#items] then
+					table.insert(self.tab, string.sub(i, #items[#items] + 1))
+				end
+			end
 		else
-			self:print(msg1, msg2)
-			self.tabMessage = true
+			for i in pairs(tableTrace) do
+				table.insert(self.tab, i)
+			end
 		end
 		
-		-- Set the input to the base thing (DESCRIPTIVE COMMENTS)
-		self.input = self.tabBefore
-		self.cursor = self.tabBeforeCursor
+		-- If we didn't find anything, give up.
+		if #self.tab < 1 then return end
+		-- print("Even found some matches!")
 		
-		-- Add thing
-		self:addAtCursor(self.tab[self.currTab])
+		-- Alphabetize the stuff
+		table.sort(self.tab)
 		
-		-- Whoops
-		self.cursorBlink = 0
+		-- I think we've succeeded. Save the text you've added in preparation to add text
+		-- also the cursor too. don't forget!
+		self.tabBefore = self.input
+		self.tabBeforeCursor = self.cursor
+		
+		-- Wraps properly.
+		self.currTab = dir >= 0 and 0 or 1
 	end
+		
+	-- Now, more general tasks
+	self.currTab = ((self.currTab + dir - 1) % #self.tab) + 1
+	
+	local msg1 = string.format("%0" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
+	local msg2 = self.tabBeforeComponent .. self.tab[self.currTab]
+	if self.tabMessage then
+		self.log[#self.log] = self:spaceArguments(msg1, msg2)
+	else
+		self:print(msg1, msg2)
+		self.tabMessage = true
+	end
+	
+	-- Set the input to the base thing (DESCRIPTIVE COMMENTS)
+	self.input = self.tabBefore
+	self.cursor = self.tabBeforeCursor
+	
+	-- Add thing
+	self:addAtCursor(self.tab[self.currTab])
+	
+	-- Whoops
+	self.cursorBlink = 0
 end
 
 function Console:runInput()
