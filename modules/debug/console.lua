@@ -1,8 +1,11 @@
 local Console = {
 	enabled = false,
 	
+	width = 60,
+	
 	input = "",
 	cursor = 1,
+	camera = 1,
 	cursorBlink = 0,
 	
 	inputPrefix = "> ",
@@ -79,9 +82,17 @@ function Console:print(...)
 	end
 end
 
+function Console:printSpecial(table)
+	self:print()
+	self.log[#self.log] = table
+	
+	_true_print(table.text)
+end
+
 function Console:addAtCursor(str)
 	self.input = string.sub(self.input, 1, self.cursor - 1) .. str .. string.sub(self.input, self.cursor)
 	self.cursor = self.cursor + #str
+	self:moveCameraToCursor()
 end
 
 function Console:textinput(key)
@@ -151,18 +162,28 @@ function Console:keypressed(key)
 			end
 		elseif key == "left" and self.cursor > 1 then
 			self.cursor = self.cursor - 1
+			self:moveCameraToCursor()
 		elseif key == "right" and self.cursor < #self.input + 1 then
 			self.cursor = self.cursor + 1
+			self:moveCameraToCursor()
 		elseif key == "home" then
 			self.cursor = 1
+			self:moveCameraToCursor()
 		elseif key == "end" then
 			self.cursor = #self.input + 1
+			self:moveCameraToCursor()
 		elseif key == "return" then
 			self:runInput()
+		elseif key == "delete" then
+			if #self.input > 0 and self.cursor <= #self.input then
+				self.input = string.sub(self.input, 1, self.cursor - 1) .. string.sub(self.input, self.cursor + 1)
+				self:moveCameraToCursor()
+			end
 		elseif key == "backspace" then
 			if #self.input > 0 and self.cursor > 1 then
 				self.cursor = self.cursor - 1
 				self.input = string.sub(self.input, 1, self.cursor - 1) .. string.sub(self.input, self.cursor + 1)
+				self:moveCameraToCursor()
 			end
 		elseif key == "tab" then
 			self:tabCompletion(1)
@@ -261,21 +282,28 @@ function Console:tabCompletion(dir)
 	-- Now, more general tasks
 	self.currTab = ((self.currTab + dir - 1) % #self.tab) + 1
 	
-	local msg1 = string.format("%" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
-	local msg2 = self.tabBeforeComponent .. self.tab[self.currTab]
-	if self.tabMessage then
-		self.log[#self.log] = self:spaceArguments(msg1, msg2)
-	else
-		self:print(msg1, msg2)
-		self.tabMessage = true
-	end
-	
 	-- Set the input to the base thing (DESCRIPTIVE COMMENTS)
 	self.input = self.tabBefore
 	self.cursor = self.tabBeforeCursor
 	
 	-- Add thing
 	self:addAtCursor(self.tab[self.currTab])
+	
+	-- Fix
+	self:moveCameraToCursor()
+	
+	-- Show tab status
+	local msg1 = string.format("%" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
+	local msg2 = self.tabBeforeComponent .. self.tab[self.currTab]
+	
+	msg2 = self:spaceArguments(msg1, msg2)
+	msg1 = string.rep(" ", self.camera - 1)
+	
+	if not self.tabMessage then
+		self:print()
+		self.tabMessage = true
+	end
+	self.log[#self.log] = msg1 .. msg2
 	
 	-- Whoops
 	self.cursorBlink = 0
@@ -287,6 +315,9 @@ function Console:runInput()
 	self:clearInput()
 	self.historyNow = nil
 	self.currHistory = 0
+	
+	-- Show line in console
+	Console:printSpecial{text = self.inputPrefix .. line, color = {0.25, 0.5, 1}}
 	
 	if line == "`" or line == "exit" or line == "quit" then self.enabled = false; return; end
 	if line == "~" or line == "cls" or line == "clear" then self.log = {}; return; end
@@ -324,9 +355,6 @@ function Console:runInput()
 		return
 	end
 	
-	-- Show line in console
-	print(self.inputPrefix .. line)
-	
 	-- Add line to history
 	table.insert(self.history, 1, line)
 	-- If history passed its max, remove a thing.
@@ -356,6 +384,7 @@ end
 function Console:clearInput()
 	self.input = ""
 	self.cursor = 1
+	self:moveCameraToCursor()
 end
 
 function Console:clearState()
@@ -363,7 +392,12 @@ function Console:clearState()
 	self.cursorBlink = 0
 end
 
--- one
+function Console:moveCameraToCursor()
+	if self.camera                                      > self.cursor then self.camera = self.cursor                                        end
+	if self.camera + self.width - #self.inputPrefix - 1 < self.cursor then self.camera = self.cursor - (self.width - #self.inputPrefix - 1) end
+end
+
+-- One variable
 function Console:isValidVariable(str)
 	return str:find(self.validVariable) and true or false
 end
@@ -412,15 +446,14 @@ end
 function Console:draw()
 	if not self.enabled then return end
 	
-	local i
+	local i, msg
 	local bottomDist = (#self.log + 1) * (self.lineHeight * window.screen.scale)
 	
 	love.graphics.setColor(0.25, 0.25, 0.25, 0.5)
-	love.graphics.rectangle("fill", 0, window.height - bottomDist, window.width, bottomDist)
+	love.graphics.rectangle("fill", 0, window.height - bottomDist, self.width * self.charWidth * window.screen.scale, bottomDist)
 	
 	love.graphics.setColor(1, 1, 1)
 	for i = 1, #self.log do
-		local msg
 		if type(self.log[i]) == "table" then
 			msg = self.log[i].text
 			love.graphics.setColor(self.log[i].color)
@@ -428,14 +461,16 @@ function Console:draw()
 			msg = self.log[i]
 			love.graphics.setColor(1, 1, 1)
 		end
+		msg = string.sub(msg, self.camera, self.camera + self.width - 1)
 		love.graphics.print(msg, 0, window.height - (bottomDist - (self.lineHeight * window.screen.scale * (i - 1))), 0, window.screen.scale)
 	end
 	
 	love.graphics.setColor(0.5, 0.75, 1)
-	love.graphics.print(self.inputPrefix .. self.input, 0, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
+	msg = self.inputPrefix .. string.sub(self.input, self.camera, self.camera + self.width - #self.inputPrefix - 1)
+	love.graphics.print(msg, 0, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 	
 	love.graphics.setColor(0.25, 0.5, 1, 0.5 + cosine(self.cursorBlink, 90, 0.5))
-	love.graphics.print("■", (self.cursor + 1) * self.charWidth * window.screen.scale, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
+	love.graphics.print("■", (self.cursor - self.camera + #self.inputPrefix) * self.charWidth * window.screen.scale, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 end
 
 return Console
