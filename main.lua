@@ -320,28 +320,7 @@ end
 
 -- Added to love functions
 function templateKeypressed(key)
-	if key == "rctrl" and window.debug.enabled then
-		local i, j
-		local alert = "+----------------------------------------+\n|    Debugging. Window won't respond.    |\n| Type \"cont\" in the console to continue |\n+----------------------------------------+"
-		
-		window.fullscreen = false
-		love.window.setFullscreen(window.fullscreen)
-		
-		love.graphics.setColor(0, 0, 0)
-		for j = -2, 2, 2 do
-			for i = -2, 2, 2 do
-				love.graphics.print(alert, 4 + i, 4 + j, 0, 2)
-			end
-		end
-		
-		love.graphics.setColor(1, 0.25, 0.5)
-		love.graphics.print(alert, 4, 4, 0, 2)
-		
-		love.graphics.present()
-		
-		print("To resume the program, enter \"cont\"\n")
-		debug.debug()
-	elseif key == "f4" then
+	if key == "f4" then
 		window.fullscreen = not window.fullscreen
 		love.window.setFullscreen(window.fullscreen)
 	end

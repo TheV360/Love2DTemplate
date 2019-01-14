@@ -8,7 +8,7 @@ local Console = {
 	camera = 1,
 	cursorBlink = 0,
 	
-	inputPrefix = "> ",
+	inputPrefix = ">> ",
 	
 	log = {
 		"+-----------------------------+",
@@ -17,7 +17,7 @@ local Console = {
 		"| ### ### # # ##  ### ### ### |",
 		"+-----------------------------+"
 	},
-	logMax = 16,
+	logMax = 24,
 	
 	history = {}, -- {"for i=1,#c.log do if type(c.log[i])=="string" then local p=i/(#c.log) c.log[i]={text=c.log[i],color={0.25*p,0.5*p,p}}end end"},
 	historyMax = 32,
@@ -316,9 +316,6 @@ function Console:runInput()
 	self.historyNow = nil
 	self.currHistory = 0
 	
-	-- Show line in console
-	Console:printSpecial{text = self.inputPrefix .. line, color = {0.25, 0.5, 1}}
-	
 	if line == "`" or line == "exit" or line == "quit" then self.enabled = false; return; end
 	if line == "~" or line == "cls" or line == "clear" then self.log = {}; return; end
 	if line == "?" or line == "help" then
@@ -354,6 +351,9 @@ function Console:runInput()
 		
 		return
 	end
+	
+	-- Show line in console
+	Console:printSpecial{text = self.inputPrefix .. line, color = {0.75, 0.875, 1}}
 	
 	-- Add line to history
 	table.insert(self.history, 1, line)
