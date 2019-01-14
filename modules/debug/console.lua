@@ -217,8 +217,6 @@ function Console:tabCompletion(dir)
 		
 		-- We're supposed to have something.
 		if #self.input > 0 and start then
-			-- print("Found thing!")
-			
 			-- Yay, we found something that looks like an identifier!
 			inputCur = string.sub(inputCur, start, stop)
 			
@@ -227,11 +225,9 @@ function Console:tabCompletion(dir)
 			
 			-- It wasn't
 			if not isValid then return end
-			-- print("It's an identifier!")
 		elseif self.emptyTab then
 			-- It's alright to have nothing.
 			items = {""}
-			-- print("Found nothing!")
 		else
 			return
 		end
@@ -245,7 +241,6 @@ function Console:tabCompletion(dir)
 			tableTrace = tableTrace[items[i]]
 			if (not tableTrace) or type(tableTrace) ~= "table" then return end -- Oh, turns out that doesn't exist, okay! :/
 		end
-		-- print("It exists(?) and everything!")
 		
 		self.tabBeforeComponent = items[#items]
 		
@@ -265,7 +260,6 @@ function Console:tabCompletion(dir)
 		
 		-- If we didn't find anything, give up.
 		if #self.tab < 1 then return end
-		-- print("Even found some matches!")
 		
 		-- Alphabetize the stuff
 		table.sort(self.tab)
@@ -293,17 +287,15 @@ function Console:tabCompletion(dir)
 	self:moveCameraToCursor()
 	
 	-- Show tab status
-	local msg1 = string.format("%" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
-	local msg2 = self.tabBeforeComponent .. self.tab[self.currTab]
-	
-	msg2 = self:spaceArguments(msg1, msg2)
-	msg1 = string.rep(" ", self.camera - 1)
+	local msg = string.format("%" .. #tostring(#self.tab) .. "d / " .. #self.tab .. ": ", self.currTab)
+	msg = msg .. self.tabBeforeComponent .. self.tab[self.currTab]
 	
 	if not self.tabMessage then
 		self:print()
+		self.log[#self.log] = {text = "", color = {1, 1, 1, 0.5}}
 		self.tabMessage = true
 	end
-	self.log[#self.log] = msg1 .. msg2
+	self.log[#self.log].text = string.rep(" ", self.camera - 1) .. msg
 	
 	-- Whoops
 	self.cursorBlink = 0

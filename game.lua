@@ -1,3 +1,6 @@
+TileMap = require("modules/objects/tilemap")
+TileLayer = require("modules/objects/tilelayer")
+
 function setup()
 	clearColor = {0, 0, 0}
 	
@@ -9,10 +12,28 @@ function setup()
 	-- window.loveFunctions:addLoveFunctionWithRunCheck("keypressed", "Game", function(key)
 	-- 	print("You have pressed the  " .. key .. " key .")
 	-- end)
+	
+	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 34 / 2)
+	theMap:newLayer(22, 15)
+	local l1 = theMap.layers[1]
+end
+
+function update()
+	if window.frames % 5 == 0 then
+		for j = 0, 7 do
+			for i = 0, 7 do
+				theMap.layers[1]:setTile(i, j, math.random(0, theMap.width * theMap.height - 1))
+			end
+		
+		end
+	end
 end
 
 function draw()
-	love.graphics.clear(clearColor)
+	-- love.graphics.clear(clearColor)
+	
+	love.graphics.setColor(clearColor)
+	love.graphics.rectangle("fill", 0, 0, window.screen.width, window.screen.height)
 	
 	local i
 	for i = 1, 36, 4 do
@@ -50,6 +71,8 @@ function draw()
 			oy
 		)
 	end
+	
+	theMap:draw()
 end
 
 function printCenter(s, x, y, r, sx, sy, ox, oy)
