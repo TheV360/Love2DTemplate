@@ -1,6 +1,3 @@
-TileMap = require("modules/objects/tilemap")
-TileLayer = require("modules/objects/tilelayer")
-
 function setup()
 	clearColor = {0, 0, 0}
 	
@@ -9,31 +6,43 @@ function setup()
 	window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 	window.debug.menu:addDivider(2)
 	
-	-- window.loveFunctions:addLoveFunctionWithRunCheck("keypressed", "Game", function(key)
-	-- 	print("You have pressed the  " .. key .. " key .")
-	-- end)
-	
-	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 34 / 2)
+	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 32 / 2)
 	theMap:newLayer(22, 15)
-	local l1 = theMap.layers[1]
+end
+
+function emojiBit(x, y)
+	local yOne = math.floor(theMap.width)
+	
+	local function makeTile()
+		return (math.random(math.floor(theMap.width  / 2)) - 1) * 2 + (math.random(math.floor(theMap.height / 2)) - 1) * 2 * yOne
+	end
+	
+	theMap.layers[1]:setTile(x    , y    , makeTile())
+	theMap.layers[1]:setTile(x + 1, y    , makeTile() + 1)
+	theMap.layers[1]:setTile(x    , y + 1, makeTile() + yOne)
+	theMap.layers[1]:setTile(x + 1, y + 1, makeTile() + yOne + 1)
 end
 
 function update()
-	if window.frames % 5 == 0 then
-		for j = 0, 7 do
-			for i = 0, 7 do
-				theMap.layers[1]:setTile(i, j, math.random(0, theMap.width * theMap.height - 1))
+	if window.frames % 15 == 0 then
+		for j = 0, 13, 4 do
+			for i = 0, 21, 4 do
+				emojiBit(i, j)
 			end
-		
+		end
+		for j = 2, 13, 4 do
+			for i = 2, 21, 4 do
+				emojiBit(i, j)
+			end
 		end
 	end
 end
 
 function draw()
-	-- love.graphics.clear(clearColor)
+	love.graphics.clear(clearColor)
 	
-	love.graphics.setColor(clearColor)
-	love.graphics.rectangle("fill", 0, 0, window.screen.width, window.screen.height)
+	-- love.graphics.setColor(clearColor)
+	-- love.graphics.rectangle("fill", 0, 0, window.screen.width, window.screen.height)
 	
 	local i
 	for i = 1, 36, 4 do
@@ -72,7 +81,7 @@ function draw()
 		)
 	end
 	
-	theMap:draw()
+	theMap:draw(4 + sine(window.frames, 90, 2), 8 + cosine(window.frames, 120, 4))
 end
 
 function printCenter(s, x, y, r, sx, sy, ox, oy)

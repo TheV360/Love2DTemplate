@@ -1,7 +1,9 @@
-Object = require("object")
-
 require "modules/watch"
 require "modules/v360"
+
+Object = require("object")
+TileMap = require("modules/objects/tilemap")
+TileLayer = require("modules/objects/tilelayer")
 
 require "game"
 

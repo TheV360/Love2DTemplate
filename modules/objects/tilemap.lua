@@ -21,10 +21,9 @@ function TileMap:newLayer(width, height, index)
 end
 
 function TileMap:makeQuad(tile)
-	print("Quad for " .. tile .. " was made!")
 	self.quads[tile] = love.graphics.newQuad(
-		(          tile % self.width)               * self.size,
-		math.floor(tile / self.width) % self.height * self.size,
+		(           tile % self.width               ) * self.size,
+		(math.floor(tile / self.width) % self.height) * self.size,
 		self.size, self.size,
 		self.image:getDimensions()
 	)

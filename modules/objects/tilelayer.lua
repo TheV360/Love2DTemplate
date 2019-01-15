@@ -47,7 +47,6 @@ function TileLayer:draw()
 	for j = 0, self.height - 1 do
 		for i = 0, self.width - 1 do
 			if self.tiles[j][i].tile >= 0 then
-				-- print("tile " .. self.tiles[j][i].tile .. " at " .. i .. ", " .. j .. " is drawn!")
 				self.map.batch:add(
 					self.map.quads[self.tiles[j][i].tile],
 					i * self.map.size,
