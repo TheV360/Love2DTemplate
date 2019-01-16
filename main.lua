@@ -277,14 +277,10 @@ function love.draw()
 	end
 	
 	if window.screen.enabled then
-		if draw then window.screen.canvas:renderTo(draw) end
+		if draw and window.running then window.screen.canvas:renderTo(draw) end
 		
 		-- Draw scaled screen
-		if window.running then
-			love.graphics.setColor(1, 1, 1)
-		else
-			love.graphics.setColor(0.25, 0.25, 0.25)
-		end
+		love.graphics.setColor(1, 1, 1)
 		
 		-- Add screen shake
 		if window.shake.enabled then

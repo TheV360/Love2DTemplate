@@ -14,7 +14,7 @@ function emojiBit(x, y)
 	local yOne = math.floor(theMap.width)
 	
 	local function makeTile()
-		return (math.random(math.floor(theMap.width  / 2)) - 1) * 2 + (math.random(math.floor(theMap.height / 2)) - 1) * 2 * yOne
+		return (math.random(math.floor(theMap.width / 2)) - 1) * 2 + (math.random(math.floor(theMap.height / 2)) - 1) * 2 * yOne
 	end
 	
 	theMap.layers[1]:setTile(x    , y    , makeTile())
