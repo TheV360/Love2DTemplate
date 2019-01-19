@@ -8,6 +8,10 @@ local Console = {
 	camera = 1,
 	cursorBlink = 0,
 	
+	-- select = false,
+	-- selectFrom = -1,
+	-- selectTo = -1,
+	
 	inputPrefix = ">> ",
 	
 	log = {
@@ -50,11 +54,11 @@ local Console = {
 	vagueIdentifier = "[%a_][%a%d_%.%:]*"
 }
 
-_true_print = print
+_debug_print_ = print
 
 -- Hook to print function
 print = function(...)
-	_true_print(...)
+	_debug_print_(...)
 	Console:print(...)
 end
 
@@ -86,7 +90,7 @@ function Console:printSpecial(table)
 	self:print()
 	self.log[#self.log] = table
 	
-	_true_print(table.text)
+	_debug_print_(table.text)
 end
 
 function Console:addAtCursor(str)
@@ -134,7 +138,8 @@ function Console:keypressed(key)
 			return
 		end
 	elseif love.keyboard.isDown("lshift", "rshift") then
-		if key == "tab" then
+		--[[if key == "up" then
+		else]]if key == "tab" then
 			self:tabCompletion(-1)
 			return
 		else

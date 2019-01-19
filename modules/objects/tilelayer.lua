@@ -19,7 +19,15 @@ function TileLayer:new(tileMap, width, height)
 	end
 end
 
+function TileLayer:withinLayer(x, y)
+	return x and y
+	and x >= 0 and y >= 0
+	and x < self.width
+	and y < self.height
+end
+
 function TileLayer:setTile(x, y, tile)
+	if not self:withinLayer(x, y) then return end
 	if not self.map.quads[tile] then
 		self.map:makeQuad(tile)
 	end
@@ -28,6 +36,7 @@ function TileLayer:setTile(x, y, tile)
 end
 
 function TileLayer:fillArea(x, y, width, height, tile)
+	if not self:withinLayer(x, y) then return end
 	if not self.map.quads[tile] then
 		self.map:makeQuad(tile)
 	end

@@ -1,13 +1,13 @@
-require "modules/watch"
-require "modules/v360"
-
-Object = require("object")
-TileMap = require("modules/objects/tilemap")
-TileLayer = require("modules/objects/tilelayer")
-
-require "game"
-
 function love.load()
+	require "modules/watch"
+	require "modules/v360"
+	
+	Object = require("object")
+	TileMap = require("modules/objects/tilemap")
+	TileLayer = require("modules/objects/tilelayer")
+	
+	require "game"
+	
 	window = {
 		-- Game Title & Save Folder Name
 		title = "Template",
@@ -277,13 +277,17 @@ function love.draw()
 	end
 	
 	if window.screen.enabled then
-		if draw and window.running then window.screen.canvas:renderTo(draw) end
-		
-		-- Draw scaled screen
+		-- Reset color
 		love.graphics.setColor(1, 1, 1)
 		
-		-- Add screen shake
+		if draw and window.running then window.screen.canvas:renderTo(draw) end
+		
+		-- Reset color
+		love.graphics.setColor(1, 1, 1)
+		
+		-- Draw scaled screen
 		if window.shake.enabled then
+			-- Add screen shake
 			if canMoveWindow() then
 				-- I n n o v a t i o n
 				love.window.setPosition(window.x + window.shake.cx, window.y + window.shake.cy)
@@ -365,6 +369,8 @@ function takeScreenshot()
 	else
 		window.screen.canvas:newImageData():encode("png", window.title .. " " .. window.version .. " " .. os.time() .. ".png")
 	end
+	
+	print("Screenshot taken!")
 end
 
 function canMoveWindow()

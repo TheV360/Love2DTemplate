@@ -1,15 +1,17 @@
 function setup()
-	clearColor = {0, 0, 0}
+	clearColor = {0, 0, 0, 0}
 	
 	gameText = "Make game!"
 	
 	window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 	window.debug.menu:addDivider(2)
 	
-	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 32 / 2)
-	theMap:newLayer(22, 15)
+	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 32 / 4--[[/ 2]])
+	--theMap:newLayer(22, 15)
+	theMap:newLayer(11 * 4, 7 * 4)
 end
 
+--[[
 function emojiBit(x, y)
 	local yOne = math.floor(theMap.width)
 	
@@ -37,12 +39,36 @@ function update()
 		end
 	end
 end
+]]
+
+function update()
+	local w, h = theMap.layers[1].width / 2, theMap.layers[1].height / 2
+	local wr, hr = math.floor(w), math.floor(h)
+	
+	theMap.layers[1]:setTile(
+		math.floor(  sine(window.frames - 30,  95, wr) *   sine(window.frames - 30, 130) + w),
+		math.floor(cosine(window.frames - 30, 100, hr) * cosine(window.frames - 30, 140) + h),
+		-1
+	)
+	theMap.layers[1]:setTile(
+		math.floor(  sine(window.frames,  95, wr) *   sine(window.frames, 130) + w),
+		math.floor(cosine(window.frames, 100, hr) * cosine(window.frames, 140) + h),
+		math.random(theMap.width * theMap.height) - 1
+	)
+end
 
 function draw()
-	love.graphics.clear(clearColor)
+	if clearColor[4] > 0 and clearColor[4] < 1 then
+		love.graphics.setColor(clearColor)
+		love.graphics.rectangle("fill", 0, 0, window.screen.width, window.screen.height)
+	else
+		love.graphics.clear(clearColor)
+	end
 	
-	-- love.graphics.setColor(clearColor)
-	-- love.graphics.rectangle("fill", 0, 0, window.screen.width, window.screen.height)
+	if secretSwitch then
+		love.graphics.print(secretSwitch)
+		return
+	end
 	
 	local i
 	for i = 1, 36, 4 do
