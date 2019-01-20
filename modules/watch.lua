@@ -2,7 +2,7 @@ Watch = {}
 
 function Watch.new(keyTable, checkFunction)
 	local _, value
-	local watch = {
+	local w = {
 		downTime = {},
 		down = {},
 		press = {},
@@ -12,14 +12,14 @@ function Watch.new(keyTable, checkFunction)
 		check = checkFunction
 	}
 	
-	for _, value in ipairs(self.keys) do
-		self.downTime[value] = 0
-		self.down[value]     = false
-		self.press[value]    = false
-		self.release[value]  = false
+	for _, value in ipairs(w.keys) do
+		w.downTime[value] = 0
+		w.down[value]     = false
+		w.press[value]    = false
+		w.release[value]  = false
 	end
 	
-	function watch:update()
+	function w:update()
 		local index, value, _
 		
 		for _, value in ipairs(self.keys) do
@@ -41,5 +41,5 @@ function Watch.new(keyTable, checkFunction)
 		end
 	end
 	
-	return watch
+	return w
 end
