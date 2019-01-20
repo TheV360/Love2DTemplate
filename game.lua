@@ -6,9 +6,9 @@ function setup()
 	window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 	window.debug.menu:addDivider(2)
 	
-	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 32 / 4--[[/ 2]])
+	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 8--[[32 / 4]]--[[/ 2]])
+	theMap:newLayer(45, 30)
 	--theMap:newLayer(22, 15)
-	theMap:newLayer(11 * 4, 7 * 4)
 end
 
 --[[
@@ -107,7 +107,7 @@ function draw()
 		)
 	end
 	
-	theMap:draw(4 + sine(window.frames, 90, 2), 8 + cosine(window.frames, 120, 4))
+	theMap:draw(sine(window.frames, 90, 2), cosine(window.frames, 120, 4))
 end
 
 function printCenter(s, x, y, r, sx, sy, ox, oy)
