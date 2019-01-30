@@ -45,19 +45,19 @@ function update()
 	local wr, hr = math.floor(w), math.floor(h)
 	
 	theMap.layers[1]:setTile(
-		math.floor(  sine(window.frames - 30,  95, wr) *   sine(window.frames - 30, 130) + w),
-		math.floor(cosine(window.frames - 30, 100, hr) * cosine(window.frames - 30, 140) + h),
+		math.floor(  V360.sine(window.frames - 30,  95, wr) *   V360.sine(window.frames - 30, 130) + w),
+		math.floor(V360.cosine(window.frames - 30, 100, hr) * V360.cosine(window.frames - 30, 140) + h),
 		-1
 	)
 	theMap.layers[1]:setTile(
-		math.floor(  sine(window.frames,  95, wr) *   sine(window.frames, 130) + w),
-		math.floor(cosine(window.frames, 100, hr) * cosine(window.frames, 140) + h),
+		math.floor(  V360.sine(window.frames,  95, wr) *   V360.sine(window.frames, 130) + w),
+		math.floor(V360.cosine(window.frames, 100, hr) * V360.cosine(window.frames, 140) + h),
 		math.random(theMap.width * theMap.height) - 1
 	)
 end
 
 function draw()
-	if clearColor[4] > 0 and clearColor[4] < 1 then
+	if clearColor[4] and clearColor[4] > 0 and clearColor[4] < 1 then
 		love.graphics.setColor(clearColor)
 		love.graphics.rectangle("fill", 0, 0, window.screen.width, window.screen.height)
 	else
@@ -74,8 +74,8 @@ function draw()
 		local j = i * 10
 		
 		local r = (2 * math.pi * ((window.frames + j) / 360))
-		local ox = sine(window.frames + j, 120, 24, true) + cosine(window.frames + j, 160, 8, true)
-		local oy = cosine(window.frames + j, 120, 32, true) + sine(window.frames + j, 160, 8, true)
+		local ox = V360.sine(window.frames + j, 120, 24, true) + V360.cosine(window.frames + j, 160, 8, true)
+		local oy = V360.cosine(window.frames + j, 120, 32, true) + V360.sine(window.frames + j, 160, 8, true)
 		
 		love.graphics.setColor(0, 0, 0, 0.25)
 		printCenter(
@@ -90,9 +90,9 @@ function draw()
 		)
 		
 		love.graphics.setColor(
-			sine(window.frames + j,  90, 0.5, true) + 0.5,
-			sine(window.frames + j, 180, 0.5, true) + 0.5,
-			sine(window.frames + j, 270, 0.5, true) + 0.5
+			V360.sine(window.frames + j,  90, 0.5, true) + 0.5,
+			V360.sine(window.frames + j, 180, 0.5, true) + 0.5,
+			V360.sine(window.frames + j, 270, 0.5, true) + 0.5
 		)
 		printCenter(
 			gameText,
@@ -106,7 +106,7 @@ function draw()
 		)
 	end
 	
-	theMap:draw(sine(window.frames, 90, 2), cosine(window.frames, 120, 4))
+	theMap:draw(V360.sine(window.frames, 90, 2), V360.cosine(window.frames, 120, 4))
 end
 
 function printCenter(s, x, y, r, sx, sy, ox, oy)

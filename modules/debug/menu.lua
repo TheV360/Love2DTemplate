@@ -43,7 +43,7 @@ function menu:update()
 	
 	for _, c in ipairs(self.options) do
 		if c.callback then
-			c.hover = pointSquare(
+			c.hover = V360.pointSquare(
 				window.mouse.x,
 				window.mouse.y,
 				self.option.margin,
@@ -87,7 +87,7 @@ function menu:draw()
 	
 	-- Pulse multiplier (for colors)
 	-- It makes a pulse effect, it is multiplied.
-	local pm = sine(window.trueFrames, 90, 0.1) + 0.9
+	local pm = V360.sine(window.trueFrames, 90, 0.1) + 0.9
 	
 	-- Rectangles
 	for i = 1, #info do

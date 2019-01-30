@@ -17,7 +17,7 @@ function love.load()
 	require "game"
 	
 	window = Window{
-		title = "HelloWorld___TEST",
+		title = "Template",
 		icon = love.image.newImageData("resources/icon.png"),
 		
 		screen = {
