@@ -6,9 +6,8 @@ function setup()
 	window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 	window.debug.menu:addDivider(2)
 	
-	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 8--[[32 / 4]]--[[/ 2]])
+	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 8)
 	theMap:newLayer(45, 30)
-	--theMap:newLayer(22, 15)
 end
 
 --[[

@@ -44,14 +44,14 @@ function menu:update()
 	for _, c in ipairs(self.options) do
 		if c.callback then
 			c.hover = pointSquare(
-				mouse.x,
-				mouse.y,
+				window.mouse.x,
+				window.mouse.y,
 				self.option.margin,
 				y,
 				self.option.width,
 				self.option.height
 			)
-			if mouse.release[1] and c.hover then
+			if window.mouse.release[1] and c.hover then
 				c.callback()
 			end
 			y = y + self.option.height + self.option.margin
@@ -92,7 +92,7 @@ function menu:draw()
 	-- Rectangles
 	for i = 1, #info do
 		if info[i][2].hover then
-			if mouse.down[1] then
+			if window.mouse.down[1] then
 				love.graphics.setColor(0.1 * pm, 0.2 * pm, 0.4 * pm)
 			else
 				love.graphics.setColor(0.2 * pm, 0.4 * pm, 0.8 * pm)
