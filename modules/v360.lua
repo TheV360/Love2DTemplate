@@ -3,12 +3,8 @@
 
 V360 = {}
 
-function V360.line(x1, y1, x2, y2)
-	love.graphics.line(math.floor(x1) + 0.5, math.floor(y1) + 0.5, math.floor(x2) + 0.5, math.floor(y2) + 0.5)
-end
-
 function V360.round(n)
-	return math.floor(.5 + n)
+	return math.floor(n + 0.5)
 end
 
 function V360.sine(offset, cycle, height, center)

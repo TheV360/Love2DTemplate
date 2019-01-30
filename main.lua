@@ -1,8 +1,8 @@
+require "modules/v360"
+
 Object = require("object")
 
 function love.load()
-	require "modules/v360"
-	
 	TileMap = require("modules/objects/tilemap")
 	TileLayer = require("modules/objects/tilelayer")
 	
