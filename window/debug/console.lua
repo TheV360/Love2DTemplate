@@ -472,7 +472,7 @@ function Console:draw()
 	msg = self.inputPrefix .. string.sub(self.input, self.camera, self.camera + self.width - #self.inputPrefix - 1)
 	love.graphics.print(msg, 0, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 	
-	love.graphics.setColor(0.25, 0.5, 1, 0.5 + V360.cosine(self.cursorBlink, 90, 0.5))
+	love.graphics.setColor(0.25, 0.5, 1, 0.5 + Util.cosine(self.cursorBlink, 90, 0.5))
 	love.graphics.print("■", (self.cursor - self.camera + #self.inputPrefix) * self.charWidth * window.screen.scale, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 end
 

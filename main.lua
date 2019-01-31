@@ -1,10 +1,8 @@
-require "modules/v360"
-
 Object = require("object")
 
 function love.load()
-	TileMap = require("modules/objects/tilemap")
-	TileLayer = require("modules/objects/tilelayer")
+	TileMap = require("objects/tilemap")
+	TileLayer = require("objects/tilelayer")
 	
 	Window = require("window")
 	Window.pixelPerfect()

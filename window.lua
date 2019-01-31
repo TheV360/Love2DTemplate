@@ -1,4 +1,4 @@
-require "modules/watch"
+require "window/util"
 
 local Window = Object:extend()
 
@@ -47,7 +47,7 @@ function Window:new(o)
 	self.callbacks.draw = o.draw
 	
 	-- Love Function Management
-	self.loveFunctions = require("modules/loveFunctions")
+	self.loveFunctions = require("window/loveFunctions")
 	self.loveFunctions.addLoveFunctionWithRunCheck = function(lf, key, name, func)
 		lf:addLoveFunction(key, name, function(...)if self.running then func(...) end end)
 	end
@@ -106,7 +106,7 @@ function Window:new(o)
 	
 	-- Button
 	if o.button then
-		local n = Watch.new({"up", "down", "left", "right", "a", "b", "start", "debug", "quit"}, function(key) return love.keyboard.isDown(self.button.map[key]) end)
+		local n = Util.watch({"up", "down", "left", "right", "a", "b", "start", "debug", "quit"}, function(key) return love.keyboard.isDown(self.button.map[key]) end)
 		self.button = n
 		
 		-- TODO: customizable button mappings
@@ -125,7 +125,7 @@ function Window:new(o)
 	
 	-- Mouse
 	if o.mouse then
-		local n = Watch.new({1, 2, 3, 4, 5}, function(key) return love.mouse.isDown(key) end)
+		local n = Util.watch({1, 2, 3, 4, 5}, function(key) return love.mouse.isDown(key) end)
 		self.mouse = n
 		
 		if not isTable(o.mouse) then o.mouse = {} end
@@ -145,9 +145,9 @@ function Window:new(o)
 		
 		n.profile = o.debug.profile or false
 		
-		n.console = require("modules/debug/console")
-		n.menu = require("modules/debug/menu")
-		n.stats = require("modules/debug/stats")
+		n.console = require("window/debug/console")
+		n.menu = require("window/debug/menu")
+		n.stats = require("window/debug/stats")
 		
 		-- Default Debug Stuff Ahead
 		

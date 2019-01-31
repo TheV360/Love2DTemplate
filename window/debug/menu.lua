@@ -1,9 +1,10 @@
-local menu = {
+local Menu = {
 	enabled = false,
 	
 	option = {
 		width = 360,
 		height = 32,
+		
 		margin = 8,
 		padding = 8,
 		shadow = 4
@@ -12,7 +13,7 @@ local menu = {
 	options = {}
 }
 
-function menu:addOption(text, callback, index)
+function Menu:addOption(text, callback, index)
 	local o = {
 		text = text or "Option",
 		callback = callback or function() end
@@ -25,7 +26,7 @@ function menu:addOption(text, callback, index)
 	end
 end
 
-function menu:addDivider(index)
+function Menu:addDivider(index)
 	local d = {}
 	
 	if index then
@@ -35,7 +36,7 @@ function menu:addDivider(index)
 	end
 end
 
-function menu:update()
+function Menu:update()
 	if not self.enabled then return end
 	
 	local _, c
@@ -43,7 +44,7 @@ function menu:update()
 	
 	for _, c in ipairs(self.options) do
 		if c.callback then
-			c.hover = V360.pointSquare(
+			c.hover = Util.pointSquare(
 				window.mouse.x,
 				window.mouse.y,
 				self.option.margin,
@@ -61,7 +62,7 @@ function menu:update()
 	end
 end
 
-function menu:draw()
+function Menu:draw()
 	if not self.enabled then return end
 	
 	local i, c
@@ -87,7 +88,7 @@ function menu:draw()
 	
 	-- Pulse multiplier (for colors)
 	-- It makes a pulse effect, it is multiplied.
-	local pm = V360.sine(window.trueFrames, 90, 0.1) + 0.9
+	local pm = Util.sine(window.trueFrames, 90, 0.1) + 0.9
 	
 	-- Rectangles
 	for i = 1, #info do
@@ -110,4 +111,4 @@ function menu:draw()
 	end
 end
 
-return menu
+return Menu
