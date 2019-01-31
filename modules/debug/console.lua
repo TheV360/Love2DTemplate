@@ -297,10 +297,10 @@ function Console:tabCompletion(dir)
 	
 	if not self.tabMessage then
 		self:print()
-		self.log[#self.log] = {text = "", color = {1, 1, 1, 0.5}}
+		self.log[#self.log] = {text = "", color = {1, 1, 1, 0.5}, noCamera = true}
 		self.tabMessage = true
 	end
-	self.log[#self.log].text = string.rep(" ", self.camera - 1) .. msg
+	self.log[#self.log].text = msg
 	
 	-- Whoops
 	self.cursorBlink = 0
@@ -454,11 +454,17 @@ function Console:draw()
 		if type(self.log[i]) == "table" then
 			msg = self.log[i].text
 			love.graphics.setColor(self.log[i].color)
+			
+			if not self.log[i].noCamera then
+				msg = string.sub(msg, self.camera, self.camera + self.width - 1)
+			end
 		else
 			msg = self.log[i]
 			love.graphics.setColor(1, 1, 1)
+			
+			msg = string.sub(msg, self.camera, self.camera + self.width - 1)
 		end
-		msg = string.sub(msg, self.camera, self.camera + self.width - 1)
+		
 		love.graphics.print(msg, 0, window.height - (bottomDist - (self.lineHeight * window.screen.scale * (i - 1))), 0, window.screen.scale)
 	end
 	

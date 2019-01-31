@@ -130,6 +130,7 @@ function Window:new(o)
 		
 		if not isTable(o.mouse) then o.mouse = {} end
 		
+		n.show = true
 		n.image = o.mouse.image or nil
 		
 		n.x, n.y = 0, 0
@@ -314,12 +315,6 @@ function Window:draw()
 	if self.screen then
 		if self.callbacks.draw and self.running then
 			self.screen.canvas:renderTo(self.callbacks.draw)
-			
-			if self.mouse and self.mouse.image then
-				love.graphics.setCanvas(self.screen.canvas)
-				love.graphics.draw(self.mouse.image, self.mouse.sx, self.mouse.sy)
-				love.graphics.setCanvas()
-			end
 		end
 		
 		-- Reset Color
@@ -352,12 +347,24 @@ function Window:draw()
 		self.debug.menu:draw()
 		self.debug.stats:draw()
 	end
-		
+	
 	-- Reset Color
 	love.graphics.setColor(1, 1, 1)
 	
-	if self.mouse and self.mouse.image and not (self.screen and self.running) then
-		love.graphics.draw(self.mouse.image, self.mouse.x, self.mouse.y)
+	if self.mouse and self.mouse.image then
+		if self.screen then
+			if self.running then
+				if self.mouse.show then
+					love.graphics.setScissor(self.screen.x, self.screen.y, self.screen.width * self.screen.scale, self.screen.height * self.screen.scale)
+					love.graphics.draw(self.mouse.image, self.screen.x + self.mouse.sx * self.screen.scale, self.screen.y + self.mouse.sy * self.screen.scale, 0, self.screen.scale)
+					love.graphics.setScissor()
+				end
+			else
+				love.graphics.draw(self.mouse.image, self.mouse.x, self.mouse.y, 0, self.screen.scale)
+			end
+		else
+			love.graphics.draw(self.mouse.image, self.mouse.x, self.mouse.y)
+		end
 	end
 	
 	if self.debug.profile and self.trueFrames % 60 == 0 then
