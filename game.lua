@@ -7,55 +7,9 @@ function setup()
 		window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 		window.debug.menu:addDivider(2)
 	end
-	
-	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 8)
-	theMap:newLayer(45, 30)
-end
-
---[[
-function emojiBit(x, y)
-	local yOne = math.floor(theMap.width)
-	
-	local function makeTile()
-		return (math.random(math.floor(theMap.width / 2)) - 1) * 2 + (math.random(math.floor(theMap.height / 2)) - 1) * 2 * yOne
-	end
-	
-	theMap.layers[1]:setTile(x    , y    , makeTile())
-	theMap.layers[1]:setTile(x + 1, y    , makeTile() + 1)
-	theMap.layers[1]:setTile(x    , y + 1, makeTile() + yOne)
-	theMap.layers[1]:setTile(x + 1, y + 1, makeTile() + yOne + 1)
 end
 
 function update()
-	if window.frames % 15 == 0 then
-		for j = 0, 13, 4 do
-			for i = 0, 21, 4 do
-				emojiBit(i, j)
-			end
-		end
-		for j = 2, 13, 4 do
-			for i = 2, 21, 4 do
-				emojiBit(i, j)
-			end
-		end
-	end
-end
-]]
-
-function update()
-	local w, h = theMap.layers[1].width / 2, theMap.layers[1].height / 2
-	local wr, hr = math.floor(w), math.floor(h)
-	
-	theMap.layers[1]:setTile(
-		math.floor(  Util.sine(window.frames - 30,  95, wr) *   Util.sine(window.frames - 30, 130) + w),
-		math.floor(Util.cosine(window.frames - 30, 100, hr) * Util.cosine(window.frames - 30, 140) + h),
-		-1
-	)
-	theMap.layers[1]:setTile(
-		math.floor(  Util.sine(window.frames,  95, wr) *   Util.sine(window.frames, 130) + w),
-		math.floor(Util.cosine(window.frames, 100, hr) * Util.cosine(window.frames, 140) + h),
-		math.random(theMap.width * theMap.height) - 1
-	)
 end
 
 function draw()
@@ -110,8 +64,6 @@ function draw()
 			oy
 		)
 	end
-	
-	theMap:draw(Util.sine(window.frames, 90, 2), Util.cosine(window.frames, 120, 4))
 end
 
 function printCenter(s, x, y, r, sx, sy, ox, oy)

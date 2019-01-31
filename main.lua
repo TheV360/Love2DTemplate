@@ -1,6 +1,5 @@
-Object = require("object")
-
 function love.load()
+	Object = require("objects/object")
 	TileMap = require("objects/tilemap")
 	TileLayer = require("objects/tilelayer")
 	
