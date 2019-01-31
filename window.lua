@@ -249,8 +249,12 @@ function Window:update(dt)
 	end
 	
 	-- Update button and mouse
-	self.button:update()
-	self:updateMouse()
+	if self.button then
+		self.button:update()
+	end
+	if self.mouse then
+		self:updateMouse()
+	end
 	
 	if self.running then
 		if self.shake then
@@ -279,7 +283,9 @@ function Window:update(dt)
 				end
 				self.debug.menu.enabled = true
 			else
-				self:updateScreen(self.width, self.height)
+				if self.screen then
+					self:updateScreen(self.width, self.height)
+				end
 				self.debug.menu.enabled = false
 			end
 			
@@ -367,7 +373,7 @@ function Window:draw()
 		end
 	end
 	
-	if self.debug.profile and self.trueFrames % 60 == 0 then
+	if self.debug and self.debug.profile and self.trueFrames % 60 == 0 then
 		local report = self.debug.profiler.report("time", 20)
 		print(report)
 		self.debug.profiler.reset()

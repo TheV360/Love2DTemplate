@@ -3,8 +3,10 @@ function setup()
 	
 	gameText = "Make game!"
 	
-	window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
-	window.debug.menu:addDivider(2)
+	if window.debug then
+		window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
+		window.debug.menu:addDivider(2)
+	end
 	
 	theMap = TileMap(love.graphics.newImage("resources/emoji.png"), 8)
 	theMap:newLayer(45, 30)
@@ -57,9 +59,12 @@ function update()
 end
 
 function draw()
+	local w = window.screen and window.screen.width  or window.width
+	local h = window.screen and window.screen.height or window.height
+	
 	if clearColor[4] and clearColor[4] > 0 and clearColor[4] < 1 then
 		love.graphics.setColor(clearColor)
-		love.graphics.rectangle("fill", 0, 0, window.screen.width, window.screen.height)
+		love.graphics.rectangle("fill", 0, 0, w, h)
 	else
 		love.graphics.clear(clearColor)
 	end
@@ -80,8 +85,8 @@ function draw()
 		love.graphics.setColor(0, 0, 0, 0.25)
 		printCenter(
 			gameText,
-			window.screen.width  / 2,
-			(window.screen.height / 2) - 15,
+			w  / 2,
+			(h / 2) - 15,
 			r,
 			2,
 			2,
@@ -96,8 +101,8 @@ function draw()
 		)
 		printCenter(
 			gameText,
-			window.screen.width  / 2,
-			(window.screen.height / 2) - 16,
+			w  / 2,
+			(h / 2) - 16,
 			r,
 			2,
 			2,
