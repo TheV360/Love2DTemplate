@@ -7,28 +7,42 @@ function setup()
 		window.debug.menu:addOption("Hello, world!", function()clearColor = {0.25, 0.5, 1}end, 1)
 		window.debug.menu:addDivider(2)
 	end
+	
+	colorPal = {
+		{0.0, 0.1, 0.2},
+		{0.1, 0.2, 0.3}
+	}
+	
+	checkerboardSize = 12
 end
 
 function update()
 end
 
 function draw()
+	local i, j
+	
 	local w = window.screen and window.screen.width  or window.width
 	local h = window.screen and window.screen.height or window.height
 	
-	if clearColor[4] and clearColor[4] > 0 and clearColor[4] < 1 then
-		love.graphics.setColor(clearColor)
-		love.graphics.rectangle("fill", 0, 0, w, h)
-	else
-		love.graphics.clear(clearColor)
-	end
+	love.graphics.clear(colorPal[1])
 	
 	if secretSwitch then
 		love.graphics.print(secretSwitch)
 		return
 	end
 	
-	local i
+	local mw, mh = math.floor(w / checkerboardSize), math.floor(h / checkerboardSize)
+	
+	love.graphics.setColor(colorPal[2])
+	for j = 0, mh - 1 do
+		for i = 0, mw - 1 do
+			if (j + i) % 2 > 0 then
+				love.graphics.rectangle("fill", i * checkerboardSize, j * checkerboardSize, checkerboardSize, checkerboardSize)
+			end
+		end
+	end
+	
 	for i = 1, 36, 4 do
 		local j = i * 10
 		
