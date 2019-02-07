@@ -3,8 +3,8 @@ function love.load()
 	TileMap = require("objects/tilemap")
 	TileLayer = require("objects/tilelayer")
 	
-	Window = require("window")
-	Window.pixelPerfect()
+	GameWindow = require("window/window")
+	GameWindow.pixelPerfect()
 	
 	-- Set up pixel font
 	local supportedCharacters = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~◆◇▼▲▽△★☆■□"
@@ -13,7 +13,7 @@ function love.load()
 	
 	require "game"
 	
-	window = Window{
+	window = GameWindow{
 		title = "Template",
 		icon = love.image.newImageData("resources/icon.png"),
 		
@@ -24,7 +24,8 @@ function love.load()
 		
 		button = true,
 		mouse = {
-			image = love.graphics.newImage("resources/mouse.png")
+			image = love.graphics.newImage("resources/mouse.png"),
+			home = {x = 1, y = 2}
 		},
 		debug = true,
 		
