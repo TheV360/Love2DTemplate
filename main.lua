@@ -22,7 +22,17 @@ function love.load()
 			height = 240
 		},
 		
-		button = true,
+		button = {
+			up    = "up",
+			down  = "down",
+			left  = "left",
+			right = "right",
+			a     = "z",
+			b     = "x",
+			start = "return",
+			debug = "=",
+			quit  = "escape"
+		},
 		mouse = {
 			image = love.graphics.newImage("resources/mouse.png"),
 			home = {x = 1, y = 2}

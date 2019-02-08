@@ -106,21 +106,19 @@ function Window:new(o)
 	
 	-- Button
 	if o.button then
-		local n = Util.watch({"up", "down", "left", "right", "a", "b", "start", "debug", "quit"}, function(key) return love.keyboard.isDown(self.button.map[key]) end)
-		self.button = n
+		self.button = {}
 		
-		-- TODO: customizable button mappings
-		self.button.map = {
-			up    = "up",
-			down  = "down",
-			left  = "left",
-			right = "right",
-			a     = "z",
-			b     = "x",
-			start = "return",
-			debug = "=",
-			quit  = "escape"
-		}
+		if isTable(o.button) then
+			local k, _
+			local buttons = {}
+			
+			for k, _ in pairs(o.button) do
+				table.insert(buttons, k)
+			end
+			
+			self.button = Util.watch(buttons, function(key) return love.keyboard.isDown(self.button.map[key]) end)
+			self.button.map = o.button
+		end
 	end
 	
 	-- Mouse

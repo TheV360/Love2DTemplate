@@ -69,8 +69,8 @@ function draw()
 		)
 		printCenter(
 			gameText,
-			w  / 2,
-			(h / 2) - 16,
+			w / 2,
+			h / 2 - 16,
 			r,
 			2,
 			2,
