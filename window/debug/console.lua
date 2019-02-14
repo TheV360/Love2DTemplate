@@ -1,6 +1,11 @@
 local Console = {
 	enabled = false,
 	
+	stealth = true,
+	stealthLog = {},
+	stealthLifetime = 120,
+	stealthFadeTime = 30,
+	
 	width = 60,
 	
 	input = "",
@@ -84,11 +89,38 @@ function Console:print(...)
 	if #self.log > self.logMax then
 		table.remove(self.log, 1)
 	end
+	
+	if self.stealth then
+		self.stealthLog[#self.stealthLog + 1] = {
+			text = self.log[#self.log],
+			life = self.stealthLifetime
+		}
+		
+		-- Also "Scroll"
+		if #self.stealthLog > self.logMax then
+			table.remove(self.stealthLog, 1)
+		end
+	end
 end
 
 function Console:printSpecial(table)
-	self:print()
-	self.log[#self.log] = table
+	self.log[#self.log + 1] = table
+	
+	-- "Scroll"
+	if #self.log > self.logMax then
+		table.remove(self.log, 1)
+	end
+	
+	-- Commented out because oftentimes the printSpecial is used for internal stuff.
+	-- if self.stealth then
+	-- 	self.stealthLog[#self.stealthLog + 1] = table
+	-- 	self.stealthLog[#self.stealthLog].life = self.stealthLifetime
+		
+	-- 	-- Also "Scroll"
+	-- 	if #self.stealthLog > self.logMax then
+	-- 		table.remove(self.stealthLog, 1)
+	-- 	end
+	-- end
 	
 	_debug_print_(table.text)
 end
@@ -313,8 +345,9 @@ function Console:runInput()
 	self.historyNow = nil
 	self.currHistory = 0
 	
-	if line == "`" or line == "exit" or line == "quit" then self.enabled = false; return; end
-	if line == "~" or line == "cls" or line == "clear" then self.log = {}; return; end
+	if line == "`" or line == "exit" or line == "quit" then self.enabled = false return end
+	if line == "~" or line == "cls" or line == "clear" then self.log = {} return end
+	if line == "^" or line == "stealth" then self.stealth = not self.stealth return end
 	if line == "?" or line == "help" then
 		self:print("~~~ Help ~~~~~~~~~~~")
 		self:print("`    - exit console ")
@@ -436,12 +469,80 @@ function Console:isValidIdentifier(str, openEnded)
 end
 
 function Console:update()
-	if not self.enabled then return end
+	if not self.enabled then
+		if self.stealth then
+			local i
+			
+			for i = #self.stealthLog, 1, -1 do
+				self.stealthLog[i].life = self.stealthLog[i].life - 1
+				
+				if self.stealthLog[i].life <= -self.stealthFadeTime then
+					table.remove(self.stealthLog, i)
+				end
+			end
+		end
+		
+		return
+	end
+	
 	self.cursorBlink = self.cursorBlink + 1
 end
 
 function Console:draw()
-	if not self.enabled then return end
+	if not self.enabled then
+		if self.stealth then
+			local scale = math.min(window.screen.scale, 2)
+			
+			love.graphics.setColor(0, 0, 0)
+			for i = 1, #self.stealthLog do
+				local changedColor = false
+				
+				if self.stealthLog[i].life <= 0 then
+					-- Fade out
+					love.graphics.setColor(0, 0, 0, (self.stealthFadeTime + self.stealthLog[i].life) / self.stealthFadeTime)
+					changedColor = true
+				end
+				
+				if self.stealthLog[i].color then
+					love.graphics.setColor(self.stealthLog[i].color)
+					changedColor = true
+				end
+				
+				love.graphics.print(self.stealthLog[i].text, 8, 9 + (i - 1) * self.lineHeight * scale, 0, scale)
+				love.graphics.print(self.stealthLog[i].text, 9, 8 + (i - 1) * self.lineHeight * scale, 0, scale)
+				love.graphics.print(self.stealthLog[i].text, 9, 9 + (i - 1) * self.lineHeight * scale, 0, scale)
+			
+				if changedColor then
+					love.graphics.setColor(0, 0, 0)
+				end
+			end
+			
+			love.graphics.setColor(1, 1, 1)
+			for i = 1, #self.stealthLog do
+				local changedColor = false
+				
+				if self.stealthLog[i].life <= 0 then
+					-- Fade out
+					love.graphics.setColor(1, 1, 1, (self.stealthFadeTime + self.stealthLog[i].life) / self.stealthFadeTime)
+					changedColor = true
+				end
+				
+				if self.stealthLog[i].color then
+					love.graphics.setColor(self.stealthLog[i].color)
+					changedColor = true
+				end
+				
+				-- Draw the text.
+				love.graphics.print(self.stealthLog[i].text, 8, 8 + (i - 1) * self.lineHeight * scale, 0, scale)
+				
+				if changedColor then
+					love.graphics.setColor(1, 1, 1)
+				end
+			end
+		end
+		
+		return
+	end
 	
 	local i, msg
 	local bottomDist = (#self.log + 1) * (self.lineHeight * window.screen.scale)
