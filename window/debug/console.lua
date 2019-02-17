@@ -1,6 +1,8 @@
 local Console = {
 	enabled = false,
 	
+	openKey = "`",
+	
 	stealth = true,
 	stealthLog = {},
 	stealthLifetime = 120,
@@ -103,8 +105,8 @@ function Console:print(...)
 	end
 end
 
-function Console:printSpecial(table)
-	self.log[#self.log + 1] = table
+function Console:printSpecial(entryTable)
+	self.log[#self.log + 1] = entryTable
 	
 	-- "Scroll"
 	if #self.log > self.logMax then
@@ -113,16 +115,16 @@ function Console:printSpecial(table)
 	
 	-- Commented out because oftentimes the printSpecial is used for internal stuff.
 	-- if self.stealth then
-	-- 	self.stealthLog[#self.stealthLog + 1] = table
+	-- 	self.stealthLog[#self.stealthLog + 1] = entryTable
 	-- 	self.stealthLog[#self.stealthLog].life = self.stealthLifetime
 		
 	-- 	-- Also "Scroll"
 	-- 	if #self.stealthLog > self.logMax then
-	-- 		table.remove(self.stealthLog, 1)
+	-- 		entryTable.remove(self.stealthLog, 1)
 	-- 	end
 	-- end
 	
-	_debug_print_(table.text)
+	_debug_print_(entryTable.text)
 end
 
 function Console:addAtCursor(str)
@@ -133,7 +135,7 @@ end
 
 function Console:textinput(key)
 	if not self.enabled then
-		if key == "`" then
+		if key == self.openKey then
 			self.enabled = true
 		end
 		return

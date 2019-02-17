@@ -152,13 +152,38 @@ function Window:new(o)
 		n.menu = require("window/debug/menu")
 		n.stats = require("window/debug/stats")
 		
+		n.keys = {
+			menu  = o.debug.keys and o.debug.keys.menu  or "=",
+			stats = o.debug.keys and o.debug.keys.stats or "-"
+		}
+		
 		-- Default Debug Stuff Ahead
 		
+		self.loveFunctions:addLoveFunction("keypressed", "ConsoleKeyPressed", function(key)
+			if self.debug.console.enabled or key == self.debug.openKey then
+				self.debug.console:keypressed(key)
+			elseif key == self.debug.keys.menu then
+				-- if self.running then
+				-- 	if self.screen then
+				-- 		self.screen.x = self.screen.x + (16 * self.screen.scale)
+				-- 	end
+				-- else
+				-- 	if self.screen then
+				-- 		self:updateScreen(self.width, self.height)
+				-- 	end
+				-- end
+				
+				-- Toggle menu
+				self.debug.menu.enabled = self.running
+				
+				-- Toggle game
+				self.running = not self.running
+			elseif key == self.debug.keys.stats then
+				self.debug.stats.enabled = not self.debug.stats.enabled
+			end
+		end)
 		self.loveFunctions:addLoveFunction("textinput", "ConsoleInput", function(key)
 			self.debug.console:textinput(key)
-		end)
-		self.loveFunctions:addLoveFunction("keypressed", "ConsoleKeyPressed", function(key)
-			self.debug.console:keypressed(key)
 		end)
 		
 		self.debug.menu:addOption("Toggle Stats", function() self.debug.stats.enabled = not self.debug.stats.enabled end)
@@ -204,7 +229,7 @@ function Window:new(o)
 	-- The window has moved to its proper place. Now you can do window position functions
 	self.x, self.y = love.window.getPosition()
 	
-	-- Update mouse coords
+	-- Update mouse coords before any of your code runs
 	if self.mouse then
 		self:updateMouse()
 	end
@@ -279,23 +304,6 @@ function Window:update(dt)
 	
 	-- Debug stuff
 	if self.debug then
-		if self.button.release["debug"] and not self.debug.console.enabled then
-			if self.running then
-				if self.screen then
-					self.screen.x = self.screen.x + (16 * self.screen.scale)
-				end
-				self.debug.menu.enabled = true
-			else
-				if self.screen then
-					self:updateScreen(self.width, self.height)
-				end
-				self.debug.menu.enabled = false
-			end
-			
-			-- Toggle game
-			self.running = not self.running
-		end
-		
 		self.debug.console:update()
 		self.debug.menu:update()
 		self.debug.stats:update()
