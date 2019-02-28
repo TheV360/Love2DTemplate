@@ -40,7 +40,6 @@ local Console = {
 	tabBefore = "",
 	tabBeforeCursor = 0,
 	tabMessage = false,
-	emptyTab = true,
 	
 	errorMessages = {
 		"Oof",
@@ -120,7 +119,7 @@ function Console:printSpecial(entryTable)
 		
 	-- 	-- Also "Scroll"
 	-- 	if #self.stealthLog > self.logMax then
-	-- 		entryTable.remove(self.stealthLog, 1)
+	-- 		table.remove(self.stealthLog, 1)
 	-- 	end
 	-- end
 	
@@ -234,7 +233,7 @@ function Console:keypressed(key)
 end
 
 function Console:hideTabMessage()
-	if key ~= "tab" and self.tabMessage then
+	if self.tabMessage then
 		self.log[#self.log] = nil
 		self.tabMessage = false
 	end
@@ -264,11 +263,9 @@ function Console:tabCompletion(dir)
 			
 			-- It wasn't
 			if not isValid then return end
-		elseif self.emptyTab then
+		else
 			-- It's alright to have nothing.
 			items = {""}
-		else
-			return
 		end
 		
 		-- It was!
@@ -330,7 +327,7 @@ function Console:tabCompletion(dir)
 	msg = msg .. self.tabBeforeComponent .. self.tab[self.currTab]
 	
 	if not self.tabMessage then
-		self:print()
+		self:print() -- TODO: just straight up remove this from the actual log. Put it into its own variable. If the variable isn't nil, it'll be temporarily added to the lines to draw.
 		self.log[#self.log] = {text = "", color = {1, 1, 1, 0.5}, noCamera = true}
 		self.tabMessage = true
 	end
@@ -447,6 +444,7 @@ function Console:isValidIdentifier(str, openEnded)
 	-- You can't be yourself twice
 	local alreadySelf = false
 	
+	-- Check if the things separating them are good.
 	for i in str:gfind("[%.%:]") do
 		-- Can't do this: a.b:c.d
 		-- I don't accept any delimiters once you use a :.
@@ -459,6 +457,7 @@ function Console:isValidIdentifier(str, openEnded)
 		delCount = delCount + 1
 	end
 	
+	-- Check if the things in between the delimiters are good.
 	for i in str:gfind(self.validVariable) do
 		table.insert(vars, i)
 	end

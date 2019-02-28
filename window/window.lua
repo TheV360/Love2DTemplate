@@ -370,19 +370,7 @@ function Window:draw()
 	
 	-- Draw mouse
 	if self.mouse and self.mouse.image then
-		if self.screen then
-			if self.running then
-				if self.mouse.show then
-					love.graphics.setScissor(self.screen.x, self.screen.y, self.screen.width * self.screen.scale, self.screen.height * self.screen.scale)
-					love.graphics.draw(self.mouse.image, self.screen.x + (self.mouse.sx - self.mouse.home.x) * self.screen.scale, self.screen.y + (self.mouse.sy - self.mouse.home.y) * self.screen.scale, 0, self.screen.scale)
-					love.graphics.setScissor()
-				end
-			else
-				love.graphics.draw(self.mouse.image, self.mouse.x - self.mouse.home.x * self.screen.scale, self.mouse.y - self.mouse.home.y * self.screen.scale, 0, self.screen.scale)
-			end
-		else
-			love.graphics.draw(self.mouse.image, self.mouse.x - self.mouse.home.x, self.mouse.y - self.mouse.home.y)
-		end
+		self:drawMouse()
 	end
 	
 	-- Profiler
@@ -425,6 +413,22 @@ function Window:updateMouse()
 	
 	-- Also, the mouse is a watch, so update that.
 	self.mouse:update()
+end
+
+function Window:drawMouse()
+	if self.screen then
+		if self.running then
+			if self.mouse.show then
+				love.graphics.setScissor(self.screen.x, self.screen.y, self.screen.width * self.screen.scale, self.screen.height * self.screen.scale)
+				love.graphics.draw(self.mouse.image, self.screen.x + (self.mouse.sx - self.mouse.home.x) * self.screen.scale, self.screen.y + (self.mouse.sy - self.mouse.home.y) * self.screen.scale, 0, self.screen.scale)
+				love.graphics.setScissor()
+			end
+		else
+			love.graphics.draw(self.mouse.image, self.mouse.x - self.mouse.home.x * self.screen.scale, self.mouse.y - self.mouse.home.y * self.screen.scale, 0, self.screen.scale)
+		end
+	else
+		love.graphics.draw(self.mouse.image, self.mouse.x - self.mouse.home.x, self.mouse.y - self.mouse.home.y)
+	end
 end
 
 -- Automatically enables/disables shake when values do things

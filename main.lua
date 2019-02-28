@@ -30,7 +30,6 @@ function love.load()
 			a     = "z",
 			b     = "x",
 			start = "return",
-			debug = "=",
 			quit  = "escape"
 		},
 		mouse = {
