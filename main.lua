@@ -33,8 +33,25 @@ function love.load()
 			quit  = "escape"
 		},
 		mouse = {
-			image = love.graphics.newImage("resources/mouse.png"),
-			home = {x = 1, y = 2}
+			cursors = {
+				["mouse"] = {
+					image = love.graphics.newImage("resources/cursors/mouse.png"),
+					home = {x = 1, y = 2}
+				},
+				["hand"] = {
+					image = love.graphics.newImage("resources/cursors/hand.png"),
+					home = {x = 4, y = 1}
+				},
+				["movable"] = {
+					image = love.graphics.newImage("resources/cursors/movable.png"),
+					home = {x = 4, y = 1}
+				},
+				["move"] = {
+					image = love.graphics.newImage("resources/cursors/move.png"),
+					home = {x = 4, y = 1}
+				}
+			},
+			defaultCursor = "mouse"
 		},
 		debug = true,
 		
