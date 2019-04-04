@@ -26,7 +26,9 @@ local Console = {
 		"| ### ### ###  ## ### #   ### |",
 		"| #   # # # #  #  # # #   ##  |",
 		"| ### ### # # ##  ### ### ### |",
-		"+-----------------------------+"
+		"+-----------------------------+",
+		"By V360 - Type 'help' for help.",
+		""
 	},
 	logMax = 24,
 	
@@ -92,6 +94,17 @@ end
 
 function Console:print(...)
 	local text = self:spaceArguments(...)
+	
+	if text:find("\n") then
+		local i
+		local texts = Util.stringSplit(text, "\n")
+		
+		for i = 1, #texts do
+			self:print(texts[i])
+		end
+		
+		return
+	end
 	
 	self.log[#self.log + 1] = text
 	
@@ -357,36 +370,38 @@ function Console:runInput()
 	if line == "~" or line == "cls" or line == "clear" then self.log = {} return end
 	if line == "^" or line == "stealth" then self.stealth = not self.stealth return end
 	if line == "?" or line == "help" then
-		self:print("~~~ Help ~~~~~~~~~~~")
-		self:print("`    - exit console ")
-		self:print("cls  - clear console")
-		self:print("help - display this ")
-		self:print("keyb - key shortcuts")
-		self:print("~~~~~~~~~~~~~~~~~~~~")
-		self:print("Anything else will  ")
-		self:print("be treated as a Lua ")
-		self:print("statement.          ")
-		self:print("~~~~~~~~~~~~~~~~~~~~")
-		self:print("If you put = at the ")
-		self:print("beginning of a line,")
-		self:print("it shows the result.")
-		self:print("~~~~~~~~~~~~~~~~~~~~")
-		
+		self:print([[
++-----+---- Help ----+
+|`    | exit console |
+|cls  | clear console|
+|help | display this |
+|keyb | key shortcuts|
++-----+--------------+
+|Anything else will  |
+|be treated as a Lua |
+|statement.          |
++--------------------+
+|If you put = at the |
+|beginning of a line,|
+|it shows the result.|
++--------------------+]]
+		)
 		return
 	end
 	if line == "keyb" then
-		self:print("~~~ Keyboard ~~~~~~~")
-		self:print("up/dn - history     ")
-		self:print("~~~~~~~~~~~~~~~~~~~~")
-		self:print("ctrlZ - clear line  ")
-		self:print("ctrlX - cut line    ")
-		self:print("ctrlC - copy line   ")
-		self:print("ctrlV - paste line  ")
-		self:print("~~~~~~~~~~~~~~~~~~~~")
-		self:print("tab   - autocomplete")
-		self:print(" (shift goes back!) ")
-		self:print("~~~~~~~~~~~~~~~~~~~~")
-		
+		self:print([[
++------+-- Keyboard -+
+|up/dn | history     |
++------+-------------+
+|ctrlZ | clear line  |
+|ctrlX | cut line    |
+|ctrlC | copy line   |
+|ctrlV | paste line  |
++------+-------------+
+|tab   | autocomplete|
+| (shift goes back!) |
++--------------------+]]
+		)
 		return
 	end
 	
@@ -401,7 +416,10 @@ function Console:runInput()
 	end
 	
 	-- If line has = at start, encase the code in print()
-	if string.sub(line, 1, 1) == "=" then
+	-- If line has double equals at start, encase it in some identifying charactersto show how yes, it is a thing
+	if string.sub(line, 1, 2) == "==" then
+		self:runLine("print(\"\\\"\" .. (" .. string.sub(line, 3) .. ") .. \"\\\"\")")
+	elseif string.sub(line, 1, 1) == "=" then
 		self:runLine("print(" .. string.sub(line, 2) .. ")")
 	else
 		self:runLine(line)
