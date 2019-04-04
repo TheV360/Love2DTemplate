@@ -72,19 +72,28 @@ end
 --       to this: a_______b_______________d
 -- Used when you print("multiple", "arguments", "like", "this")
 function Console:spaceArguments(...)
-	local t = {...}
-	local i
-	local r = tostring(t[1])
+	local l = select("#", ...)
 	
-	for i = 2, #t do
-		r = r .. string.rep(" ", 8 - #r % self.tabStep) .. tostring(t[i])
+	if l > 0 then
+		local t = {...}
+		local i
+		
+		local r = tostring(t[1])
+		
+		for i = 2, l do
+			r = r .. string.rep(" ", 8 - #r % self.tabStep) .. tostring(t[i])
+		end
+		
+		return r
+	else
+		return ""
 	end
-	
-	return r
 end
 
 function Console:print(...)
-	self.log[#self.log + 1] = self:spaceArguments(...)
+	local text = self:spaceArguments(...)
+	
+	self.log[#self.log + 1] = text
 	
 	-- "Scroll"
 	if #self.log > self.logMax then
@@ -93,7 +102,7 @@ function Console:print(...)
 	
 	if self.stealth then
 		self.stealthLog[#self.stealthLog + 1] = {
-			text = self.log[#self.log],
+			text = text,
 			life = self.stealthLifetime
 		}
 		
