@@ -7,7 +7,7 @@ function love.load()
 	GameWindow.pixelPerfect()
 	
 	-- Set up pixel font
-	local supportedCharacters = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~◆◇▼▲▽△★☆■□"
+	local supportedCharacters = [[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~◆◇▼▲▽△★☆■□☺☻←↑→↓]]
 	font = love.graphics.newImageFont("resources/font_6x8.png", supportedCharacters)
 	love.graphics.setFont(font)
 	
