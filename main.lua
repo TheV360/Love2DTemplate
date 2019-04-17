@@ -4,6 +4,8 @@ function love.load()
 	TileLayer = require("objects/tilelayer")
 	
 	GameWindow = require("window/window")
+	Util = require("window/util")
+	
 	GameWindow.pixelPerfect()
 	
 	-- Set up pixel font
@@ -11,13 +13,19 @@ function love.load()
 	font = love.graphics.newImageFont("resources/font_6x8.png", supportedCharacters)
 	love.graphics.setFont(font)
 	
-	require "game"
+	-- local supportedCharacters2 = [[ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~◆◇▼▲▽△★☆]]
+	-- font2 = love.graphics.newImageFont("resources/font_8x16.png", supportedCharacters2)
+	-- love.graphics.setFont(font2)
+	
+	require("game")
 	
 	window = GameWindow{
 		title = "Template",
 		icon = love.image.newImageData("resources/icon.png"),
 		
 		screen = {
+			scale = 4,
+			
 			width  = 360,
 			height = 240
 		},

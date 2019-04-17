@@ -1,5 +1,3 @@
-require "window/util"
-
 local Window = Object:extend()
 
 local function isTable(n)
@@ -55,12 +53,13 @@ function Window:new(o)
 	-- Screen Size
 	if o.screen then
 		local n = {
-			scale = 2,
 			x = 0, y = 0
 		}
 		self.screen = n
 		
 		if not isTable(o.screen) then o.screen = {} end
+		
+		n.scale  = o.screen.scale  or 2
 		
 		n.width  = o.screen.width  or 360
 		n.height = o.screen.height or 240

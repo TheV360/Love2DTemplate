@@ -1,7 +1,7 @@
 -- Some helper functions
 -- By V360
 
-Util = {}
+local Util = {}
 
 function Util.round(n)
 	return math.floor(n + 0.5)
@@ -120,3 +120,5 @@ function Util.watch(keyTable, checkFunction)
 	
 	return w
 end
+
+return Util
