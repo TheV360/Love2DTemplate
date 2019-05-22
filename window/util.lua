@@ -52,6 +52,20 @@ function Util.pointSquare(x1, y1, x2, y2, w2, h2)
 	return x1 >= x2 and y1 >= y2 and x1 < x2 + w2 and y1 < y2 + h2
 end
 
+function Util.measureText(text)
+	local f = love.graphics.getFont()
+	
+	return f:getWidth(text), f:getHeight()
+end
+
+function Util.measureTextWidth(text)
+	return love.graphics.getFont():getWidth(text)
+end
+
+function Util.measureTextHeight()
+	return love.graphics.getFont():getHeight()
+end
+
 function Util.stringSplit(str, delimiter, max)
 	local result = {}
 	local current = 0

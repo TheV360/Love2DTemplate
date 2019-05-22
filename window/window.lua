@@ -17,6 +17,11 @@ function Window:new(o)
 	self.title = o.title or "Untitled"
 	self.version = o.version or "v0.0"
 	
+	-- Quality
+	if o.pixelPerfect then
+		Window.pixelPerfect()
+	end
+	
 	-- Icon
 	self.icon = o.icon or nil
 	
@@ -99,8 +104,8 @@ function Window:new(o)
 		n.enabled = false
 		
 		n.screenCoords = o.shake.screenCoords or false
-		n.extremes = o.shake.extremes or true
-		n.windowBonk = o.shake.windowBonk or true
+		n.extremes = o.shake.extremes ~= nil and o.shake.extremes or true
+		n.windowBonk = o.shake.windowBonk ~= nil and o.shake.windowBonk or true
 	end
 	
 	-- Button
@@ -135,8 +140,14 @@ function Window:new(o)
 			local i, v
 			
 			for i, v in pairs(o.mouse.cursors) do
+				local img = v.image
+				
+				if type(img) == "string" then
+					img = love.graphics.newImage(img)
+				end
+				
 				n.cursors[i] = {
-					image = v.image,
+					image = img,
 					home = {
 						x = v.home and v.home.x or 0,
 						y = v.home and v.home.y or 0
@@ -182,6 +193,7 @@ function Window:new(o)
 		}
 		
 		-- Default Debug Stuff Ahead
+		n.console:setup{window = self}
 		
 		self.loveFunctions:addLoveFunction("keypressed", "ConsoleKeyPressed", function(key)
 			if self.debug.console.enabled or key == self.debug.console.openKey then
@@ -214,7 +226,7 @@ function Window:new(o)
 		self.debug.menu:addOption("Toggle Console", function() self.debug.console.enabled = not self.debug.console.enabled end)
 		self.debug.menu:addDivider()
 		self.debug.menu:addOption("Take Screenshot", function()
-			if window.backdrop.enabled then
+			if window.backdrop and window.backdrop.enabled then
 				love.graphics.captureScreenshot(window.title .. " " .. window.version .. " " .. os.time() .. ".png")
 			else
 				window.screen.canvas:newImageData():encode("png", window.title .. " " .. window.version .. " " .. os.time() .. ".png")
