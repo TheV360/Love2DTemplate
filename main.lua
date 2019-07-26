@@ -57,9 +57,25 @@ function love.load()
 				["move"] = {
 					image = "resources/cursors/move.png",
 					home = {x = 4, y = 1}
+				},
+				["wait"] = {
+					image = "resources/cursors/wait.png",
+					home = {x = 3, y = 1},
+					anim = {
+						x = 0,
+						y = 0,
+						width = 16,
+						height = 16,
+						time = 3,
+						
+						{},
+						{x = 16},
+						{x = 32},
+						{x = 48}
+					}
 				}
 			},
-			defaultCursor = "mouse"
+			defaultCursor = "wait"
 		},
 		debug = true,
 		
