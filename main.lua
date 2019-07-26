@@ -66,7 +66,7 @@ function love.load()
 						y = 0,
 						width = 16,
 						height = 16,
-						time = 3,
+						time = 4,
 						
 						{},
 						{x = 16},

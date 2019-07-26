@@ -562,8 +562,10 @@ function Window:switchCursor(index)
 	if not self.mouse.cursors[index] then error("V360Template: Switched to mouse that doesn't exist.") end
 	
 	self.mouse.currentCursor = index
-	self.mouse.anim.frame = 1
-	self.mouse.anim.timer = self.mouse.cursors[self.mouse.currentCursor].anim[self.mouse.anim.frame].time
+	if self.mouse.cursors[self.mouse.currentCursor].anim then
+		self.mouse.anim.frame = 1
+		self.mouse.anim.timer = self.mouse.cursors[self.mouse.currentCursor].anim[self.mouse.anim.frame].time
+	end
 	
 	love.mouse.setVisible(not self.mouse.cursors[self.mouse.currentCursor].image)
 end
