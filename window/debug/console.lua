@@ -8,7 +8,7 @@ local Console = {
 	stealthLifetime = 120,
 	stealthFadeTime = 30,
 	
-	width = 60,
+	width = 80,
 	
 	input = "",
 	cursor = 1,
@@ -22,11 +22,12 @@ local Console = {
 	inputPrefix = ">> ",
 	
 	log = {
-		"+-----------------------------+",
-		"| ### ### ###  ## ### #   ### |",
-		"| #   # # # #  #  # # #   ##  |",
-		"| ### ### # # ##  ### ### ### |",
-		"+-----------------------------+",
+		[[     _/_/   _/_/   _/    _/   _/_/   _/_/   _/     _/_/_/_/]],
+		[[  _/     _/    _/ _/_/  _/ _/     _/    _/ _/     _/       ]],
+		[[ _/     _/    _/ _/  _/_/   _/   _/    _/ _/     _/_/_/    ]],
+		[[_/     _/    _/ _/    _/     _/ _/    _/ _/     _/         ]],
+		[[ _/_/   _/_/   _/    _/ _/_/     _/_/   _/_/_/ _/_/_/_/    ]],
+		"",
 		"By V360 - Type 'help' for help.",
 		""
 	},
@@ -71,7 +72,7 @@ function Console:setup(o)
 	self.logMax = o.logMax or 24
 end
 
-_debug_print_ = print
+local _debug_print_ = print
 
 -- Hook to print function
 print = function(...)
