@@ -1,7 +1,5 @@
 function love.load()
-	Object = require("objects/object")
-	TileMap = require("objects/tilemap")
-	TileLayer = require("objects/tilelayer")
+	Object = require("util/object")
 	
 	GameWindow = require("window/window")
 	Util = require("window/util")
@@ -42,6 +40,7 @@ function love.load()
 		},
 		mouse = {
 			cursors = {
+				[""] = {},
 				["mouse"] = {
 					image = "resources/cursors/mouse.png",
 					home = {x = 1, y = 2}
@@ -75,7 +74,7 @@ function love.load()
 					}
 				}
 			},
-			defaultCursor = "wait"
+			defaultCursor = "mouse"
 		},
 		debug = true,
 		

@@ -29,6 +29,30 @@ function TileMap:makeQuad(tile)
 	)
 end
 
+function TileMap:releaseQuad(tile)
+	self.quads[tile]:release()
+	self.quads[tile] = nil
+end
+
+function TileMap:releaseUnusedQuads()
+	-- TODO: inefficient garbage
+	
+	local used = {}
+	for l = 1, #self.layers do
+		for j = 1, #self.layers[l].tiles do
+			for i = 1, #self.layers[l].tiles[j] do
+				used[self.layers[l].tiles[j][i].tile] = true
+			end
+		end
+	end
+	
+	for i, q in pairs(self.quads) do
+		if not used[i] then
+			self:releaseQuad(i)
+		end
+	end
+end
+
 function TileMap:draw(x, y)
 	local _, v
 	

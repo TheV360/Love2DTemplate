@@ -1,3 +1,5 @@
+local utf8 = require("utf8")
+
 local Console = {
 	enabled = false,
 	
@@ -45,13 +47,10 @@ local Console = {
 	tabMessage = nil,
 	
 	errorMessages = {
-		"Oof",
-		"Yikes",
-		"This ain't it",
-		")", -- ):
-		"Ouch",
-		"ERROR",
-		"I'm sad"
+		"Oh no",
+		"Sorry",
+		"Error",
+		"Failed"
 	},
 	
 	charWidth = nil,
@@ -69,7 +68,7 @@ function Console:setup(o)
 	self.charWidth  = o.charWidth  or math.max(Util.measureTextWidth("m"), Util.measureTextWidth("w"), Util.measureTextWidth("_"))
 	self.lineHeight = o.lineHeight or Util.measureTextHeight()
 	
-	self.logMax = o.logMax or 24
+	self.logMax = o.logMax or self.logMax or 24
 end
 
 local _debug_print_ = print
@@ -78,6 +77,31 @@ local _debug_print_ = print
 print = function(...)
 	_debug_print_(...)
 	Console:print(...)
+end
+
+print_table = function(t, depth)
+	depth = depth or 0
+	if depth > 16 then
+		print("too much")
+		return
+	end
+	
+	local depth_space = string.rep(" ", depth)
+	for i, c in pairs(t) do
+		if type(c) == "table" then
+			if next(c) == nil then
+				print(depth_space .. i .. ": {}")
+			else
+				print(depth_space .. i .. ": {")
+				print_table(c, depth + 1)
+				print(depth_space .. "}")
+			end
+		elseif type(c) == "string" then
+			print(depth_space .. i .. ": [" .. #c .. "] \"" .. c .. "\"")
+		else
+			print(depth_space .. i .. ": " .. tostring(c))
+		end
+	end
 end
 
 -- Converts this: a[tab]b[tab][tab]d
@@ -233,24 +257,24 @@ function Console:keypressed(key)
 		elseif key == "left" and self.cursor > 1 then
 			self.cursor = self.cursor - 1
 			self:moveCameraToCursor()
-		elseif key == "right" and self.cursor < #self.input + 1 then
+		elseif key == "right" and self.cursor < utf8.len(self.input) + 1 then
 			self.cursor = self.cursor + 1
 			self:moveCameraToCursor()
 		elseif key == "home" then
 			self.cursor = 1
 			self:moveCameraToCursor()
 		elseif key == "end" then
-			self.cursor = #self.input + 1
+			self.cursor = utf8.len(self.input) + 1
 			self:moveCameraToCursor()
 		elseif key == "return" then
 			self:runInput()
 		elseif key == "delete" then
-			if #self.input > 0 and self.cursor <= #self.input then
+			if utf8.len(self.input) > 0 and self.cursor <= utf8.len(self.input) then
 				self.input = string.sub(self.input, 1, self.cursor - 1) .. string.sub(self.input, self.cursor + 1)
 				self:moveCameraToCursor()
 			end
 		elseif key == "backspace" then
-			if #self.input > 0 and self.cursor > 1 then
+			if utf8.len(self.input) > 0 and self.cursor > 1 then
 				self.cursor = self.cursor - 1
 				self.input = string.sub(self.input, 1, self.cursor - 1) .. string.sub(self.input, self.cursor + 1)
 				self:moveCameraToCursor()
@@ -283,7 +307,7 @@ function Console:tabCompletion(dir)
 		local isValid, items
 		
 		-- We're supposed to have something.
-		if #self.input > 0 and start then
+		if utf8.len(self.input) > 0 and start then
 			-- Yay, we found something that looks like an identifier!
 			inputCur = string.sub(inputCur, start, stop)
 			
@@ -421,9 +445,12 @@ function Console:runInput()
 	end
 	
 	-- If line has = at start, encase the code in print()
-	-- If line has double equals at start, encase it in some identifying charactersto show how yes, it is a thing
+	-- If line has double equals at start, encase it in some identifying characters to show how yes, it is a thing
+	-- If line has weird bracket equals sad face, encase the code in a pretty print function.
 	if string.sub(line, 1, 2) == "==" then
 		self:runLine("print(\"\\\"\" .. (" .. string.sub(line, 3) .. ") .. \"\\\"\")")
+	elseif string.sub(line, 1, 2) == "=[" then
+		self:runLine("print_table(" .. string.sub(line, 3) .. ")")
 	elseif string.sub(line, 1, 1) == "=" then
 		self:runLine("print(" .. string.sub(line, 2) .. ")")
 	else
@@ -454,8 +481,10 @@ function Console:clearState()
 end
 
 function Console:moveCameraToCursor()
-	if self.camera                                      > self.cursor then self.camera = self.cursor                                        end
-	if self.camera + self.width - #self.inputPrefix - 1 < self.cursor then self.camera = self.cursor - (self.width - #self.inputPrefix - 1) end
+	if self.camera > self.cursor then self.camera = self.cursor end
+	if self.camera + self.width - utf8.len(self.inputPrefix) - 1 < self.cursor then
+		self.camera = self.cursor - (self.width - utf8.len(self.inputPrefix) - 1)
+	end
 end
 
 -- One variable
@@ -595,11 +624,11 @@ function Console:draw()
 	end
 	
 	love.graphics.setColor(0.5, 0.75, 1)
-	msg = self.inputPrefix .. string.sub(self.input, self.camera, self.camera + self.width - #self.inputPrefix - 1)
+	msg = self.inputPrefix .. string.sub(self.input, self.camera, self.camera + self.width - utf8.len(self.inputPrefix) - 1)
 	love.graphics.print(msg, 0, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 	
 	love.graphics.setColor(0.25, 0.5, 1, 0.5 + Util.cosine(self.cursorBlink, 90, 0.5))
-	love.graphics.print("■", (self.cursor - self.camera + #self.inputPrefix) * self.charWidth * window.screen.scale, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
+	love.graphics.print("■", (self.cursor - self.camera + utf8.len(self.inputPrefix)) * self.charWidth * window.screen.scale, window.height - (self.lineHeight * window.screen.scale), 0, window.screen.scale)
 end
 
 function Console:drawLine(line, bottomDist, i)

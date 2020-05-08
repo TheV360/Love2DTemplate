@@ -75,20 +75,21 @@ function Util.stringSplit(str, delimiter, max)
 	local current = 0
 	local next = string.find(str, delimiter, current, true)
 	
-	if not next then return {str} end
+	if #delimiter < 1 then return result end
+	if max and max < 1 then return result end
 	
-	repeat
+	while next do
 		table.insert(result, string.sub(str, current, next - 1))
 		current = next + 1
 		
-		if max and #result > max then
+		if max and #result >= max then
 			break
 		end
 		
 		next = string.find(str, delimiter, current, true)
-	until not next
+	end
 	
-	if not (max and #result > max) then
+	if not (max and #result >= max) then
 		table.insert(result, string.sub(str, current))
 	end
 	

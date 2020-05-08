@@ -71,7 +71,7 @@ Feel free to make an issue and I'll try to fix it asap! You can also fix it and 
 
 ## Credits
 
-wh
+everything created by me except a few libraries in the `util` folder and also `profile.lua` in the `window/debug` folder.
 
 ## License
 
